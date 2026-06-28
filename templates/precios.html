@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar precios - CookingBox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Editar precios de trailers</h1>
+    <div class="card">
+        <form method="POST">
+            {% for t in trailers %}
+            <label for="precio_{{ t.pies }}">{{ t.modelo }} (down min. {{ '${:,.0f}'.format(t.down_min) if t.down_min else 'N/A' }})</label>
+            <input type="number" step="0.01" min="0" id="precio_{{ t.pies }}" name="precio_{{ t.pies }}"
+                   value="{{ t.precio if t.precio is not none else '' }}" placeholder="Precio de venta">
+            {% endfor %}
+            <button type="submit">Guardar precios</button>
+        </form>
+    </div>
+    <a class="nav-link" href="{{ url_for('index') }}">Volver al evaluador</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pre-calificación sin crédito - CookingBox Food Trailers</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>¿Calificas para financiamiento<br>SIN revisión de crédito?</h1>
+    <p style="text-align:center; color:#555;">Llena estos datos y te decimos al instante qué trailers están a tu alcance.</p>
+
+    {% if resultado %}
+    <div class="card">
+        {% if resultado.califica_algo %}
+            <p class="ok" style="font-size:1.1rem;">¡Felicidades! Calificas para uno o más modelos.</p>
+        {% else %}
+            <p class="no" style="font-size:1.1rem;">Con ese down payment todavía no alcanzas el mínimo. Contáctanos, te ayudamos a encontrar una opción.</p>
+        {% endif %}
+
+        <table>
+            <tr><th>Modelo</th><th>Down min.</th><th>¿Califica?</th></tr>
+            {% for m in resultado.modelos %}
+            <tr>
+                <td>{{ m.modelo }}</td>
+                <td>${{ '{:,.0f}'.format(m.down_min) }}</td>
+                <td>{% if m.califica %}<span class="ok">SI</span>{% else %}<span class="no">No</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <p style="margin-top:14px;">Un asesor de CookingBox se pondrá en contacto contigo pronto para continuar tu proceso.</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="card">
+            <label for="nombre">Nombre completo</label>
+            <input type="text" id="nombre" name="nombre" value="{{ nombre }}" required>
+
+            <label for="telefono">Teléfono</label>
+            <input type="text" id="telefono" name="telefono" value="{{ telefono }}" required>
+
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" value="{{ email }}">
+
+            <label for="down_payment">¿Cuánto tienes disponible para el down payment? (USD)</label>
+            <input type="number" step="0.01" min="0" id="down_payment" name="down_payment"
+                   value="{{ down_payment if down_payment is not none else '' }}" required>
+
+            <button type="submit">Ver si califico</button>
+        </div>
+    </form>
+
+    <p style="text-align:center; color:#999; font-size:0.85rem;">Somos CookingBox Food Trailers</p>
+</div>
+</body>
+</html>

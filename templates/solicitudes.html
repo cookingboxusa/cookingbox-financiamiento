@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Solicitudes - CookingBox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Solicitudes de financiamiento</h1>
+
+    <a class="nav-link" href="{{ url_for('solicitud_nueva') }}"><button type="button">+ Nueva solicitud</button></a>
+
+    {% for s in solicitudes %}
+    <div class="card">
+        <strong>{{ s.aplicante.nombre or '(sin nombre)' }}</strong> con
+        <strong>{{ s.coaplicante.nombre or '(sin coaplicante)' }}</strong><br>
+        Down payment: ${{ '{:,.0f}'.format(s.down_payment) }}<br>
+        {% if s.completo %}
+            <span class="ok">Completo — listo para sistema de aprobaciones</span>
+        {% else %}
+            <span class="no">Incompleto ({{ s.pendientes|length }} pendiente{{ 's' if s.pendientes|length != 1 else '' }})</span>
+        {% endif %}
+        <br>
+        <a href="{{ url_for('solicitud_detalle', solicitud_id=s.id) }}">Ver / editar expediente</a>
+    </div>
+    {% else %}
+    <p>No hay solicitudes capturadas todavía.</p>
+    {% endfor %}
+
+    <a class="nav-link" href="{{ url_for('index') }}">Evaluador de down payment</a>
+</div>
+</body>
+</html>

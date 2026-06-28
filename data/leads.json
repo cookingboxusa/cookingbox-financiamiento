@@ -1,0 +1,11 @@
+[
+  {
+    "id": "c6be0ca7",
+    "fecha": "2026-06-27T20:02:56",
+    "nombre": "Ana Lopez",
+    "telefono": "956-222-2222",
+    "email": "ana@test.com",
+    "down_payment": 6000.0,
+    "califica": true
+  }
+]

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leads de pre-calificación - CookingBox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Leads de la página pública</h1>
+
+    {% for l in leads %}
+    <div class="card">
+        <strong>{{ l.nombre }}</strong><br>
+        Tel: {{ l.telefono }} {% if l.email %}&middot; {{ l.email }}{% endif %}<br>
+        Down payment: ${{ '{:,.0f}'.format(l.down_payment) }}<br>
+        {% if l.califica %}
+            <span class="ok">Califica para al menos un modelo</span>
+        {% else %}
+            <span class="no">No alcanza el mínimo todavía</span>
+        {% endif %}
+        <br><span style="color:#999; font-size:0.85rem;">{{ l.fecha }}</span>
+    </div>
+    {% else %}
+    <p>Todavía no hay leads capturados desde la página pública.</p>
+    {% endfor %}
+
+    <a class="nav-link" href="{{ url_for('index') }}">Volver al panel interno</a>
+</div>
+</body>
+</html>

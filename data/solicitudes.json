@@ -1,0 +1,25 @@
+[
+  {
+    "id": "4665f5af",
+    "fecha": "2026-06-27T19:42:49",
+    "down_payment": 9000.0,
+    "aplicante": {
+      "nombre": "Juan Perez",
+      "telefono": "956-000-0000",
+      "email": "",
+      "direccion": "123 Main St",
+      "id_doc": true,
+      "comprobante_domicilio": true,
+      "comprobante_domicilio_2": false
+    },
+    "coaplicante": {
+      "nombre": "Maria Perez",
+      "telefono": "956-111-1111",
+      "email": "",
+      "direccion": "123 Main St",
+      "id_doc": true,
+      "comprobante_domicilio": true,
+      "comprobante_domicilio_2": false
+    }
+  }
+]
