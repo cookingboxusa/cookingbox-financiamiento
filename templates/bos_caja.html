@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BOS de la Caja - CookingBox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>BOS de la Caja — Kappa Food Trailers</h1>
+
+    <div class="card">
+        <h2>Cargar datos del cliente</h2>
+        <label>Seleccionar solicitud existente (opcional)</label>
+        <select id="selector_solicitud" onchange="cargarSolicitud(this.value)">
+            <option value="">-- Seleccionar cliente --</option>
+            {% for s in solicitudes %}
+            <option value="{{ s.id }}"
+                data-nombre="{{ s.aplicante.nombre }}"
+                data-direccion="{{ s.aplicante.direccion }}"
+                data-telefono="{{ s.aplicante.telefono }}">
+                {{ s.aplicante.nombre }} ({{ s.id }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <form method="POST">
+        <div class="card">
+            <h2>Datos del documento</h2>
+            <label>Fecha</label>
+            <input type="date" name="fecha" id="fecha" value="{{ form.get('fecha', hoy) }}">
+
+            <label>Nombre del cliente</label>
+            <input type="text" name="cliente_nombre" id="cliente_nombre" value="{{ form.get('cliente_nombre','') }}" required>
+
+            <label>Dirección del cliente</label>
+            <input type="text" name="cliente_direccion" id="cliente_direccion" value="{{ form.get('cliente_direccion','') }}" required>
+
+            <label>Teléfono</label>
+            <input type="text" name="cliente_telefono" id="cliente_telefono" value="{{ form.get('cliente_telefono','') }}" required>
+
+            <label>Descripción (ej: FOOD TRAILER 8X16)</label>
+            <input type="text" name="descripcion" value="{{ form.get('descripcion','FOOD TRAILER 8X16') }}" required>
+
+            <label>Sales Price (USD)</label>
+            <input type="number" step="0.01" min="0" name="sales_price" value="{{ form.get('sales_price','') }}" required>
+
+            <label>Términos</label>
+            <select name="terminos">
+                <option value="FINANCING" {% if form.get('terminos','FINANCING')=='FINANCING' %}selected{% endif %}>FINANCING</option>
+                <option value="CASH" {% if form.get('terminos')=='CASH' %}selected{% endif %}>CASH</option>
+            </select>
+
+            <label>Bill of Sale #</label>
+            <input type="text" name="bos_num" value="{{ form.get('bos_num','') }}" placeholder="Ej: F11-2-0426" required>
+        </div>
+
+        <div class="card">
+            <h2>Descripción del Trailer</h2>
+            <label>VIN</label>
+            <input type="text" name="vin" value="{{ form.get('vin','') }}" required>
+
+            <label>Año</label>
+            <input type="text" name="anio" value="{{ form.get('anio','2026') }}" required>
+
+            <label>Make</label>
+            <input type="text" name="make" value="{{ form.get('make','') }}" required>
+
+            <label>Modelo</label>
+            <input type="text" name="modelo" value="{{ form.get('modelo','') }}" required>
+
+            <label>Body Style</label>
+            <input type="text" name="body_style" value="{{ form.get('body_style','FOOD VENDING') }}" required>
+
+            <label>Color</label>
+            <input type="text" name="color" value="{{ form.get('color','') }}" required>
+        </div>
+
+        <button type="submit">Generar BOS de la Caja</button>
+    </form>
+
+    {% if resultado %}
+    <hr class="divider">
+
+    <div id="doc-bos-caja" style="background:white; padding:36px; font-family:Arial,sans-serif; max-width:680px; margin:0 auto; border:1px solid #ddd;">
+
+        <div style="margin-bottom:24px;">
+            <p style="font-size:1.4rem; font-weight:bold; margin:0 0 20px;">BILL OF SALE</p>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <p style="font-weight:bold; font-size:1rem; margin:2px 0;">KAPPA FOOD TRAILERS</p>
+                    <p style="margin:2px 0; font-size:0.9rem;">662 QUARRY STREET</p>
+                    <p style="margin:2px 0; font-size:0.9rem;">EAGLE PASS, TX. 78852</p>
+                </div>
+                <div style="background:#c0392b; color:white; border-radius:50%; width:80px; height:80px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:0.6rem; font-weight:bold; line-height:1.2;">
+                    KAPPA<br>FOOD<br>TRAILERS
+                </div>
+            </div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:20px;">
+            <tr>
+                <td style="border:1px solid #aaa; padding:6px; width:140px; font-weight:bold; background:#f5f5f5;">DATE :</td>
+                <td style="border:1px solid #aaa; padding:6px;">{{ resultado.fecha }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:6px; font-weight:bold; background:#f5f5f5;">CUSTOMER NAME:</td>
+                <td style="border:1px solid #aaa; padding:6px;">{{ resultado.cliente_nombre }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:6px; font-weight:bold; background:#f5f5f5;">ADDRESS:</td>
+                <td style="border:1px solid #aaa; padding:6px;">{{ resultado.cliente_direccion }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:6px; font-weight:bold; background:#f5f5f5;">PHONE NUMBER:</td>
+                <td style="border:1px solid #aaa; padding:6px;">{{ resultado.cliente_telefono }}</td>
+            </tr>
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:20px;">
+            <tr style="background:#f5f5f5;">
+                <th style="border:1px solid #aaa; padding:7px; text-align:left;">DESCRIPTION</th>
+                <th style="border:1px solid #aaa; padding:7px; text-align:left;">SALES PRICE</th>
+                <th style="border:1px solid #aaa; padding:7px; text-align:left;">TERMS</th>
+                <th style="border:1px solid #aaa; padding:7px; text-align:left;">BILL OF SALE #</th>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:7px;">{{ resultado.descripcion }}</td>
+                <td style="border:1px solid #aaa; padding:7px;">$ &nbsp;{{ '{:,.2f}'.format(resultado.sales_price) }}</td>
+                <td style="border:1px solid #aaa; padding:7px;">{{ resultado.terminos }}</td>
+                <td style="border:1px solid #aaa; padding:7px;">{{ resultado.bos_num }}</td>
+            </tr>
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:20px;">
+            <tr style="background:#e8e8e8;">
+                <td colspan="2" style="border:1px solid #aaa; padding:8px; font-weight:bold;">TRAILER DESCRIPTION</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:8px 8px 8px 24px; width:140px; font-weight:bold;">VIN:</td>
+                <td style="border:1px solid #aaa; padding:8px;">{{ resultado.vin }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:8px 8px 8px 24px; font-weight:bold;">YEAR:</td>
+                <td style="border:1px solid #aaa; padding:8px;">{{ resultado.anio }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:8px 8px 8px 24px; font-weight:bold;">MAKE:</td>
+                <td style="border:1px solid #aaa; padding:8px;">{{ resultado.make }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:8px 8px 8px 24px; font-weight:bold;">MODEL:</td>
+                <td style="border:1px solid #aaa; padding:8px;">{{ resultado.modelo }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:8px 8px 8px 24px; font-weight:bold;">BODY STYLE:</td>
+                <td style="border:1px solid #aaa; padding:8px;">{{ resultado.body_style }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:8px 8px 8px 24px; font-weight:bold;">TRAILER COLOR:</td>
+                <td style="border:1px solid #aaa; padding:8px;">{{ resultado.color }}</td>
+            </tr>
+        </table>
+
+        <table style="width:260px; border-collapse:collapse; font-size:0.88rem;">
+            <tr>
+                <td style="border:1px solid #aaa; padding:7px; font-weight:bold;">TOTAL:</td>
+                <td style="border:1px solid #aaa; padding:7px; text-align:right;">$ &nbsp;{{ '{:,.2f}'.format(resultado.sales_price) }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #aaa; padding:7px; font-weight:bold;">UNPAID BALANCE:</td>
+                <td style="border:1px solid #aaa; padding:7px; text-align:right;">$ &nbsp;{{ '{:,.2f}'.format(resultado.sales_price) }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <button type="button" onclick="descargarJPEG('doc-bos-caja','bos_caja')" style="margin-top:12px; background:#1e8449;">Descargar como JPEG</button>
+    {% endif %}
+
+    <a class="nav-link" href="{{ url_for('index') }}">Panel principal</a>
+</div>
+
+<script>
+function cargarSolicitud(id) {
+    const sel = document.getElementById('selector_solicitud');
+    const opt = sel.options[sel.selectedIndex];
+    if (!id) return;
+    document.getElementById('cliente_nombre').value    = opt.dataset.nombre    || '';
+    document.getElementById('cliente_direccion').value = opt.dataset.direccion || '';
+    document.getElementById('cliente_telefono').value  = opt.dataset.telefono  || '';
+}
+function descargarJPEG(elId, nombre) {
+    const el = document.getElementById(elId);
+    html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = nombre + '_cookingbox.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        link.click();
+    });
+}
+</script>
+</body>
+</html>
