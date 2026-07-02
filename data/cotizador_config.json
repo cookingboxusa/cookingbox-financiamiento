@@ -1,10 +1,10 @@
 {
   "trailers": [
-    {"modelo": "12 pies (1 Axle 5,000 lbs)",  "precio": 13750, "descripcion": "8X12 Enclosed Kitchen Ready"},
-    {"modelo": "16 pies (2 Axle 12,000 lbs)",  "precio": 16500, "descripcion": "8X16 Enclosed Kitchen Ready"},
-    {"modelo": "18 pies (2 Axle 12,000 lbs)",  "precio": 17500, "descripcion": "8X18 Enclosed Kitchen Ready"},
-    {"modelo": "20 pies (2 Axle 12,000 lbs)",  "precio": 17500, "descripcion": "8X20 Enclosed Kitchen Ready"},
-    {"modelo": "24 pies (2 Axle 12,000 lbs)",  "precio": 17500, "descripcion": "8X24 Enclosed Kitchen Ready"}
+    {"modelo": "12 pies (1 Axle 5,000 lbs)",  "precio": 13750, "descripcion": "8X12 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T12'", "precio": 100}]},
+    {"modelo": "16 pies (2 Axle 12,000 lbs)",  "precio": 16500, "descripcion": "8X16 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T16'", "precio": 150}]},
+    {"modelo": "18 pies (2 Axle 12,000 lbs)",  "precio": 17500, "descripcion": "8X18 Enclosed Kitchen Ready", "extras": []},
+    {"modelo": "20 pies (2 Axle 12,000 lbs)",  "precio": 17500, "descripcion": "8X20 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T20'", "precio": 200}]},
+    {"modelo": "24 pies (2 Axle 12,000 lbs)",  "precio": 17500, "descripcion": "8X24 Enclosed Kitchen Ready", "extras": []}
   ],
   "equipos": [
     {"nombre": "3' Griddle (plancha)",             "precio": 300},

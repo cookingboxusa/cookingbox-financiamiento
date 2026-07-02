@@ -79,11 +79,11 @@
         <div class="card">
             <h2>Trailer seleccionado</h2>
             <label>Modelo</label>
-            <select name="trailer_idx" id="trailer_idx" required onchange="calcularVivo()">
+            <select name="trailer_idx" id="trailer_idx" required onchange="actualizarExtras(); calcularVivo();">
                 {% for i, t in enumerate(cfg.trailers) %}
                 <option value="{{ i }}"
                     data-precio="{{ t.precio }}"
-                    data-downmin="{{ t.down_min if t.get('down_min') else 0 }}"
+                    data-extras="{{ t.get('extras', []) | tojson | e }}"
                     {% if form.get('trailer_idx','0')|int == i %}selected{% endif %}>
                     {{ t.modelo }} — ${{ '{:,.0f}'.format(t.precio) }}
                 </option>
@@ -91,6 +91,12 @@
             </select>
             <label>Color</label>
             <input type="text" name="color" value="{{ form.get('color','') }}" placeholder="Ej: BLACK, WHITE, RED...">
+
+            {# Extras dinámicos por trailer #}
+            <div id="extras-trailer" style="margin-top:14px; display:none;">
+                <h3 style="margin-bottom:8px;">Extras disponibles para este trailer</h3>
+                <div id="extras-lista"></div>
+            </div>
         </div>
 
         {# ── 4. Equipos ── #}
@@ -141,6 +147,20 @@
                 <td style="padding:6px; border:1px solid #ddd;"><strong>Tel:</strong> {{ resultado.cliente_telefono }}</td>
             </tr>
         </table>
+        {% if resultado.extras_sel %}
+        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:12px;">
+            <tr style="background:#c0392b; color:white;">
+                <th style="padding:7px; text-align:left;">EXTRAS</th>
+                <th style="padding:7px; text-align:right; width:100px;">COSTO</th>
+            </tr>
+            {% for ex in resultado.extras_sel %}
+            <tr>
+                <td style="padding:6px; border:1px solid #eee;">{{ ex.nombre }}</td>
+                <td style="padding:6px; border:1px solid #eee; text-align:right;">${{ '{:,.2f}'.format(ex.precio) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
 
         <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:12px;">
             <tr style="background:#c0392b; color:white;">
@@ -204,9 +224,9 @@
 </div>
 
 <script>
-// Tabla de down payment mínimo por trailer (índice)
 const trailerDownMin = [5250, 6250, 7500, 9000, 10500];
 const trailerPrecios = {{ cfg.trailers | map(attribute='precio') | list | tojson }};
+const trailerExtras  = {{ cfg.trailers | map(attribute='extras') | list | tojson }};
 
 function pagoSemanal(monto) {
     if (monto < 11000) return null;
@@ -218,14 +238,37 @@ function fmt(n) {
     return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
+function actualizarExtras() {
+    const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
+    const extras = trailerExtras[idx] || [];
+    const contenedor = document.getElementById('extras-trailer');
+    const lista = document.getElementById('extras-lista');
+
+    if (!extras.length) {
+        contenedor.style.display = 'none';
+        lista.innerHTML = '';
+        return;
+    }
+
+    contenedor.style.display = 'block';
+    lista.innerHTML = extras.map((ex, i) => `
+        <label style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #eee; font-weight:normal; cursor:pointer;">
+            <input type="checkbox" name="trailer_extra_${i}" class="extra-check"
+                   data-precio="${ex.precio}" onchange="calcularVivo()"
+                   style="width:18px; height:18px; accent-color:#c0392b;">
+            <span>${ex.nombre}</span>
+            <span style="margin-left:auto; font-weight:700; color:#c0392b;">${fmt(ex.precio)}</span>
+        </label>
+    `).join('');
+}
+
 function calcularVivo() {
     const dp = parseFloat(document.getElementById('down_payment').value) || 0;
-    const trailerSel = document.getElementById('trailer_idx');
-    const trailerIdx = parseInt(trailerSel.value) || 0;
-    const trailerPrecio = trailerPrecios[trailerIdx] || 0;
-    const downMin = trailerDownMin[trailerIdx] || 0;
+    const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
+    const trailerPrecio = trailerPrecios[idx] || 0;
+    const downMin = trailerDownMin[idx] || 0;
 
-    // Sumar equipos seleccionados
+    // Equipos estándar
     let totalEquipos = 0;
     document.querySelectorAll('.eq-check').forEach((cb, i) => {
         if (cb.checked) {
@@ -234,12 +277,17 @@ function calcularVivo() {
         }
     });
 
-    const valorVenta = trailerPrecio + totalEquipos;
-    const montoFinanciado = valorVenta - dp;
-    const califica = dp >= downMin;
-    const pago = montoFinanciado > 0 ? pagoSemanal(montoFinanciado) : null;
+    // Extras por trailer
+    let totalExtras = 0;
+    document.querySelectorAll('.extra-check').forEach(cb => {
+        if (cb.checked) totalExtras += parseFloat(cb.dataset.precio);
+    });
 
-    const box = document.getElementById('live-aprobacion');
+    const valorVenta     = trailerPrecio + totalEquipos + totalExtras;
+    const montoFinanciado = valorVenta - dp;
+    const califica       = dp >= downMin;
+    const pago           = montoFinanciado > 0 ? pagoSemanal(montoFinanciado) : null;
+    const box            = document.getElementById('live-aprobacion');
 
     if (dp <= 0) { box.innerHTML = ''; return; }
 
@@ -248,7 +296,11 @@ function calcularVivo() {
         <div class="aprobado-box">
             <p class="label">MONTO APROBADO PARA FINANCIAR</p>
             <div class="monto">${fmt(montoFinanciado)}</div>
-            <p class="label">Valor de venta ${fmt(valorVenta)} — Down payment ${fmt(dp)}</p>
+            <p class="label" style="margin-top:4px;">
+                Valor de venta ${fmt(valorVenta)}
+                ${totalExtras > 0 ? `(incluye extras ${fmt(totalExtras)})` : ''}
+                — Down payment ${fmt(dp)}
+            </p>
             ${pago ? `<div class="pago">Pago semanal (3 años): ${fmt(pago)}/semana</div>` : ''}
         </div>`;
     } else if (!califica) {
@@ -261,12 +313,12 @@ function calcularVivo() {
     } else {
         box.innerHTML = `
         <div class="no-aprobado-box">
-            <p style="font-size:1rem; font-weight:700; margin:0;">El down payment cubre el trailer — sin balance a financiar</p>
+            <p style="font-size:1rem; font-weight:700; margin:0;">El down payment cubre el total — sin balance a financiar</p>
         </div>`;
     }
 }
 
-window.onload = calcularVivo;
+window.onload = function() { actualizarExtras(); calcularVivo(); };
 
 function descargarJPEG() {
     const el = document.getElementById('documento-cotizacion');

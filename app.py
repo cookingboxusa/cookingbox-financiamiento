@@ -434,8 +434,16 @@ def cotizador():
                 equipos_sel.append({**eq, "qty": qty, "subtotal": subtotal})
                 total_equipos += subtotal
 
+        # Extras por trailer
+        extras_sel = []
+        total_extras = 0
+        for i, ex in enumerate(trailer.get("extras", [])):
+            if form.get(f"trailer_extra_{i}"):
+                extras_sel.append(ex)
+                total_extras += ex["precio"]
+
         precio_trailer = trailer["precio"]
-        valor_venta = precio_trailer + total_equipos
+        valor_venta = precio_trailer + total_equipos + total_extras
         monto_financiado = valor_venta - down_payment
         pago_semanal = calcular_pago_semanal(monto_financiado)
 
@@ -445,8 +453,10 @@ def cotizador():
             "cliente_nombre": cliente_nombre,
             "cliente_telefono": cliente_telefono,
             "equipos_sel": equipos_sel,
+            "extras_sel": extras_sel,
             "precio_trailer": precio_trailer,
             "total_equipos": total_equipos,
+            "total_extras": total_extras,
             "valor_venta": valor_venta,
             "down_payment": down_payment,
             "monto_financiado": monto_financiado,
