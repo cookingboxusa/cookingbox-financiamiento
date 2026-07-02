@@ -40,7 +40,10 @@
                 <tr><th>Incluir</th><th>Equipo</th><th>Precio</th><th>Qty</th></tr>
                 {% for i, eq in enumerate(cfg.equipos) %}
                 <tr>
-                    <td><input type="checkbox" name="equipo_{{ i }}" {% if form.get('equipo_'+i|string) %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="equipo_{{ i }}"
+                        {% if form and form.get('equipo_'+i|string) %}checked
+                        {% elif not form and eq.get('default') %}checked
+                        {% endif %}></td>
                     <td>{{ eq.nombre }}</td>
                     <td>${{ '{:,.0f}'.format(eq.precio) }}</td>
                     <td><input type="number" name="qty_{{ i }}" value="{{ form.get('qty_'+i|string, '1') }}" min="1" max="10" style="width:60px"></td>
