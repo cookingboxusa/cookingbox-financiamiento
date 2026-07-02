@@ -5,145 +5,263 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mi Solicitud - CookingBox</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        input:required:invalid, select:required:invalid { border-color: #e74c3c; }
+        input:required:valid,   select:required:valid   { border-color: #27ae60; }
+        .campo-error { border-color: #e74c3c !important; background: #fff8f8; }
+        .msg-error {
+            color: #c0392b; font-size: 0.8rem;
+            display: none; margin-top: 2px;
+        }
+        .seccion-ok   { border-left: 4px solid #27ae60; }
+        .seccion-pend { border-left: 4px solid #e74c3c; }
+        .progreso-bar {
+            height: 8px; border-radius: 4px;
+            background: #eee; overflow: hidden; margin: 8px 0 4px;
+        }
+        .progreso-fill {
+            height: 100%; background: #27ae60;
+            transition: width 0.4s ease;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
 
     <div style="text-align:center; margin-bottom:16px;">
         <h1>CookingBox Food Trailers</h1>
-        <p style="color:#666; margin:0;">Bienvenido, <strong>{{ cliente_nombre }}</strong></p>
+        <p style="color:#666; margin:0 0 4px;">Bienvenido, <strong>{{ cliente_nombre }}</strong></p>
         <a href="{{ url_for('cliente_logout') }}" style="font-size:0.8rem; color:#c0392b;">Cerrar sesión</a>
     </div>
 
     {% with msgs = get_flashed_messages() %}
     {% if msgs %}
-    <div style="background:#d5f5e3; color:#1e8449; padding:12px; border-radius:8px; margin-bottom:12px; font-size:0.9rem;">
-        {{ msgs[0] }}
+    <div style="background:#d5f5e3; color:#1e8449; padding:12px; border-radius:8px; margin-bottom:12px; font-size:0.9rem; text-align:center;">
+        ✅ {{ msgs[0] }}
     </div>
     {% endif %}
     {% endwith %}
 
-    <div class="card">
+    {# ── Estado de la solicitud ── #}
+    <div class="card {% if completo %}seccion-ok{% else %}seccion-pend{% endif %}">
         {% if completo %}
-        <p><span class="badge-ok">Tu solicitud está completa — CookingBox la está revisando</span></p>
+        <p style="margin:0;"><span class="badge-ok">✅ Tu solicitud está completa — CookingBox la está revisando</span></p>
         {% else %}
-        <p><span class="badge-no">Solicitud incompleta — {{ pendientes|length }} sección(es) pendiente(s)</span></p>
-        <ul class="pendientes">
+        <p style="margin:0 0 6px;"><span class="badge-no">Solicitud incompleta — {{ pendientes|length }} campo(s) pendiente(s)</span></p>
+        <div class="progreso-bar">
+            <div class="progreso-fill" id="barraProgreso"></div>
+        </div>
+        <ul class="pendientes" style="margin:8px 0 0;">
             {% for p in pendientes %}<li>{{ p }}</li>{% endfor %}
         </ul>
         {% endif %}
-        <p style="font-size:0.85rem; color:#888; margin:8px 0 0;">
-            Puedes guardar tu progreso y regresar cuando quieras. Tu información es privada y segura.
+        <p style="font-size:0.82rem; color:#888; margin:10px 0 0;">
+            Todos los campos son obligatorios. Puedes guardar y regresar cuando quieras — tu información es privada.
         </p>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="formSolicitud" novalidate>
 
+        {# ── Down payment ── #}
         <div class="card">
             <h2>Down Payment</h2>
-            <label for="down_payment">¿Cuánto tienes disponible para el down payment? (USD)</label>
-            <input type="number" step="0.01" min="0" id="down_payment" name="down_payment"
-                   value="{{ solicitud.down_payment if solicitud.down_payment else '' }}" required>
+            <label for="down_payment">¿Cuánto tienes disponible para el down payment? (USD) <span style="color:#c0392b">*</span></label>
+            <input type="number" step="0.01" min="1" id="down_payment" name="down_payment"
+                   value="{{ solicitud.down_payment if solicitud.down_payment else '' }}"
+                   required placeholder="Ej: 7500">
+            <span class="msg-error" id="err_down_payment">Ingresa el monto de down payment.</span>
         </div>
 
         {% for prefijo, titulo, persona in [
-            ("aplicante",   "Tus datos (Aplicante Principal)",  solicitud.aplicante),
+            ("aplicante",   "Tus datos — Aplicante Principal",  solicitud.aplicante),
             ("coaplicante", "Datos del Coaplicante / Socio",    solicitud.coaplicante)
         ] %}
         <div class="card">
             <h2>{{ titulo }}</h2>
 
-            <label>Nombre completo</label>
-            <input type="text" name="{{ prefijo }}_nombre" value="{{ persona.get('nombre','') }}" required>
+            <label>Nombre completo <span style="color:#c0392b">*</span></label>
+            <input type="text" name="{{ prefijo }}_nombre"
+                   value="{{ persona.get('nombre','') }}" required
+                   placeholder="Nombre y apellidos completos">
+            <span class="msg-error">Este campo es obligatorio.</span>
 
-            <label>Dirección</label>
-            <input type="text" name="{{ prefijo }}_direccion" value="{{ persona.get('direccion','') }}" required>
+            <label>Dirección <span style="color:#c0392b">*</span></label>
+            <input type="text" name="{{ prefijo }}_direccion"
+                   value="{{ persona.get('direccion','') }}" required
+                   placeholder="Calle, ciudad, estado, zip">
+            <span class="msg-error">Este campo es obligatorio.</span>
 
-            <label>Teléfono</label>
-            <input type="text" name="{{ prefijo }}_telefono" value="{{ persona.get('telefono','') }}" required>
+            <label>Teléfono <span style="color:#c0392b">*</span></label>
+            <input type="tel" name="{{ prefijo }}_telefono"
+                   value="{{ persona.get('telefono','') }}" required
+                   placeholder="956-000-0000">
+            <span class="msg-error">Este campo es obligatorio.</span>
 
-            <label>Correo electrónico</label>
-            <input type="email" name="{{ prefijo }}_email" value="{{ persona.get('email','') }}">
+            <label>Correo electrónico <span style="color:#c0392b">*</span></label>
+            <input type="email" name="{{ prefijo }}_email"
+                   value="{{ persona.get('email','') }}" required
+                   placeholder="tucorreo@email.com">
+            <span class="msg-error">Ingresa un correo electrónico válido.</span>
 
-            <label>Tiempo solicitado del contrato</label>
+            <label>Tiempo solicitado del contrato <span style="color:#c0392b">*</span></label>
             <select name="{{ prefijo }}_plazo" required>
-                <option value="">-- Seleccionar plazo --</option>
+                <option value="">-- Selecciona el plazo --</option>
                 {% for p in plazos %}
                 <option value="{{ p }}" {% if persona.get('plazo') == p %}selected{% endif %}>{{ p }}</option>
                 {% endfor %}
             </select>
+            <span class="msg-error">Selecciona el plazo del contrato.</span>
 
             {% if prefijo == "aplicante" %}
-            <label>Dirección donde pondrás a trabajar el trailer</label>
+            <label>Dirección donde pondrás a trabajar el trailer <span style="color:#c0392b">*</span></label>
             <input type="text" name="aplicante_direccion_trailer"
-                   value="{{ persona.get('direccion_trailer','') }}" required>
+                   value="{{ persona.get('direccion_trailer','') }}" required
+                   placeholder="Dirección del local o estacionamiento">
+            <span class="msg-error">Este campo es obligatorio.</span>
             {% endif %}
 
-            <label>Red social (solo una — ej: @tuusuario en Instagram)</label>
+            <label>Red social <span style="color:#c0392b">*</span></label>
             <input type="text" name="{{ prefijo }}_red_social"
-                   value="{{ persona.get('red_social','') }}" placeholder="@usuario o URL">
+                   value="{{ persona.get('red_social','') }}" required
+                   placeholder="@tuusuario (Instagram, Facebook, etc.)">
+            <span class="msg-error">Ingresa al menos una red social.</span>
 
             <hr class="divider">
-            <h3>5 Referencias Personales</h3>
-            <p style="font-size:0.85rem; color:#666; margin-top:0;">Nombre, teléfono y parentesco de cada referencia.</p>
+            <h3>5 Referencias Personales <span style="color:#c0392b">*</span></h3>
+            <p style="font-size:0.85rem; color:#666; margin-top:0;">Todas las 5 referencias son obligatorias (nombre, teléfono y parentesco).</p>
 
             {% set refs = persona.get('referencias', [{},{},{},{},{}]) %}
             {% for i in range(1, 6) %}
             {% set ref = refs[i-1] if refs|length >= i else {} %}
-            <p style="font-weight:600; color:#c0392b; margin:10px 0 4px;">Referencia {{ i }}</p>
+            <p style="font-weight:600; color:#c0392b; margin:12px 0 4px;">Referencia {{ i }}</p>
             <div class="ref-grid">
                 <div>
-                    <label>Nombre</label>
-                    <input type="text" name="{{ prefijo }}_ref{{ i }}_nombre" value="{{ ref.get('nombre','') }}">
+                    <label>Nombre <span style="color:#c0392b">*</span></label>
+                    <input type="text" name="{{ prefijo }}_ref{{ i }}_nombre"
+                           value="{{ ref.get('nombre','') }}" required
+                           placeholder="Nombre completo">
+                    <span class="msg-error">Obligatorio.</span>
                 </div>
                 <div>
-                    <label>Teléfono</label>
-                    <input type="text" name="{{ prefijo }}_ref{{ i }}_telefono" value="{{ ref.get('telefono','') }}">
+                    <label>Teléfono <span style="color:#c0392b">*</span></label>
+                    <input type="tel" name="{{ prefijo }}_ref{{ i }}_telefono"
+                           value="{{ ref.get('telefono','') }}" required
+                           placeholder="000-000-0000">
+                    <span class="msg-error">Obligatorio.</span>
                 </div>
                 <div>
-                    <label>Parentesco</label>
-                    <select name="{{ prefijo }}_ref{{ i }}_parentesco">
-                        <option value="">-- Parentesco --</option>
+                    <label>Parentesco <span style="color:#c0392b">*</span></label>
+                    <select name="{{ prefijo }}_ref{{ i }}_parentesco" required>
+                        <option value="">-- Seleccionar --</option>
                         {% for par in parentescos %}
                         <option value="{{ par }}" {% if ref.get('parentesco') == par %}selected{% endif %}>{{ par }}</option>
                         {% endfor %}
                     </select>
+                    <span class="msg-error">Obligatorio.</span>
                 </div>
             </div>
             {% endfor %}
 
             <hr class="divider">
-            <h3>Documentos</h3>
-            <p style="font-size:0.85rem; color:#666; margin-top:0;">Sube fotos o escaneos claros (JPG, PNG o PDF).</p>
+            <h3>Documentos requeridos</h3>
+            <p style="font-size:0.85rem; color:#666; margin-top:0;">Fotos o escaneos claros (JPG, PNG o PDF, máx. 10MB cada uno).</p>
 
-            <label>📷 Foto de tu ID (pasaporte o licencia)</label>
+            <label>📷 Foto de ID (pasaporte o licencia) <span style="color:#c0392b">*</span></label>
             {% if persona.get('id_doc') %}
-            <p class="file-actual">✅ Ya cargado — sube uno nuevo para reemplazar</p>
-            {% endif %}
+            <p class="file-actual">✅ Ya cargado — sube uno nuevo solo si quieres reemplazarlo</p>
             <input type="file" name="{{ prefijo }}_id_doc" accept=".jpg,.jpeg,.png,.pdf,.heic">
-
-            <label>🏠 Comprobante de domicilio</label>
-            {% if persona.get('comprobante') %}
-            <p class="file-actual">✅ Ya cargado — sube uno nuevo para reemplazar</p>
+            {% else %}
+            <input type="file" name="{{ prefijo }}_id_doc" accept=".jpg,.jpeg,.png,.pdf,.heic" required>
+            <span class="msg-error">Debes subir una foto de tu ID.</span>
             {% endif %}
+
+            <label>🏠 Comprobante de domicilio <span style="color:#c0392b">*</span></label>
+            {% if persona.get('comprobante') %}
+            <p class="file-actual">✅ Ya cargado — sube uno nuevo solo si quieres reemplazarlo</p>
             <input type="file" name="{{ prefijo }}_comprobante" accept=".jpg,.jpeg,.png,.pdf,.heic">
+            {% else %}
+            <input type="file" name="{{ prefijo }}_comprobante" accept=".jpg,.jpeg,.png,.pdf,.heic" required>
+            <span class="msg-error">Debes subir un comprobante de domicilio.</span>
+            {% endif %}
 
             {% if prefijo == "aplicante" %}
-            <label>🏦 Estado de cuenta (que muestre tu capital para el down payment)</label>
+            <label>🏦 Estado de cuenta (que muestre capital para el down payment) <span style="color:#c0392b">*</span></label>
             {% if persona.get('estado_cuenta') %}
-            <p class="file-actual">✅ Ya cargado — sube uno nuevo para reemplazar</p>
-            {% endif %}
+            <p class="file-actual">✅ Ya cargado — sube uno nuevo solo si quieres reemplazarlo</p>
             <input type="file" name="aplicante_estado_cuenta" accept=".jpg,.jpeg,.png,.pdf,.heic">
+            {% else %}
+            <input type="file" name="aplicante_estado_cuenta" accept=".jpg,.jpeg,.png,.pdf,.heic" required>
+            <span class="msg-error">Debes subir tu estado de cuenta.</span>
             {% endif %}
+            {% endif %}
+
         </div>
         {% endfor %}
 
-        <button type="submit">Guardar mi solicitud</button>
+        <div id="resumen-errores" style="display:none; background:#fdecea; color:#c0392b; padding:14px; border-radius:10px; margin-bottom:10px; font-size:0.9rem;">
+            ⚠️ Hay campos incompletos. Revisa los campos marcados en rojo antes de guardar.
+        </div>
+
+        <button type="submit" id="btnGuardar">Guardar mi solicitud</button>
     </form>
 
     <p style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:24px;">
         CookingBox Food Trailers — Tu información está protegida y es confidencial.
     </p>
 </div>
+
+<script>
+// Validación en tiempo real y al intentar guardar
+const form = document.getElementById('formSolicitud');
+
+function validarCampo(input) {
+    const err = input.nextElementSibling;
+    const vacio = !input.value.trim() || (input.type === 'select-one' && input.value === '');
+    if (input.hasAttribute('required') && (vacio || !input.validity.valid)) {
+        input.classList.add('campo-error');
+        if (err && err.classList.contains('msg-error')) err.style.display = 'block';
+        return false;
+    } else {
+        input.classList.remove('campo-error');
+        if (err && err.classList.contains('msg-error')) err.style.display = 'none';
+        return true;
+    }
+}
+
+// Validar en tiempo real campo por campo
+document.querySelectorAll('input[required], select[required]').forEach(input => {
+    input.addEventListener('blur', () => validarCampo(input));
+    input.addEventListener('input', () => validarCampo(input));
+    input.addEventListener('change', () => validarCampo(input));
+});
+
+// Validar todo al intentar guardar
+form.addEventListener('submit', function(e) {
+    let valido = true;
+    let primerError = null;
+
+    document.querySelectorAll('input[required], select[required]').forEach(input => {
+        if (!validarCampo(input)) {
+            valido = false;
+            if (!primerError) primerError = input;
+        }
+    });
+
+    if (!valido) {
+        e.preventDefault();
+        document.getElementById('resumen-errores').style.display = 'block';
+        if (primerError) primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+
+// Barra de progreso
+(function() {
+    const total = document.querySelectorAll('input[required], select[required]').length;
+    const llenos = Array.from(document.querySelectorAll('input[required], select[required]'))
+        .filter(i => i.value && i.value.trim() !== '').length;
+    const barra = document.getElementById('barraProgreso');
+    if (barra) barra.style.width = Math.round((llenos / total) * 100) + '%';
+})();
+</script>
 </body>
 </html>
