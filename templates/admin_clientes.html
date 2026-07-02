@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accesos de Clientes - CookingBox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Accesos del Portal de Clientes</h1>
+
+    <div class="card">
+        <h2>Crear acceso para cliente</h2>
+        <p style="font-size:0.88rem; color:#666; margin-top:0;">
+            Selecciona la solicitud del cliente y genera su usuario y contraseña automáticamente.
+        </p>
+        <form method="POST" action="{{ url_for('admin_crear_cliente') }}">
+            <label>Seleccionar solicitud</label>
+            <select name="solicitud_id" required>
+                <option value="">-- Seleccionar cliente --</option>
+                {% for s in sol_map.values() %}
+                {% set ya_tiene = clientes | selectattr('solicitud_id','equalto', s.id) | list | length > 0 %}
+                <option value="{{ s.id }}" {% if ya_tiene %}disabled{% endif %}>
+                    {{ s.aplicante.nombre or '(sin nombre)' }} — ID: {{ s.id }}
+                    {% if ya_tiene %}(ya tiene acceso){% endif %}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" style="margin-top:10px;">Generar usuario y contraseña</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Accesos generados</h2>
+        {% if clientes %}
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Usuario</th>
+                <th>Contraseña</th>
+                <th>URL para compartir</th>
+                <th>Creado</th>
+            </tr>
+            {% for c in clientes %}
+            <tr>
+                <td><strong>{{ c.nombre }}</strong></td>
+                <td style="font-family:monospace; background:#f5f5f5; padding:4px 8px; border-radius:4px;">{{ c.usuario }}</td>
+                <td style="font-family:monospace; background:#fff3cd; padding:4px 8px; border-radius:4px; font-weight:bold;">{{ c.clave_visible }}</td>
+                <td style="font-size:0.8rem; color:#1e8449;">
+                    /cliente/login
+                </td>
+                <td style="font-size:0.8rem; color:#999;">{{ c.creado[:10] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <p style="font-size:0.82rem; color:#c0392b; margin-top:12px;">
+            ⚠️ Guarda estas contraseñas — solo se muestran aquí. Envíaselas al cliente por WhatsApp o email.
+        </p>
+        {% else %}
+        <p style="color:#999;">Todavía no has generado accesos para ningún cliente.</p>
+        {% endif %}
+    </div>
+
+    <a class="nav-link" href="{{ url_for('index') }}">Panel principal</a>
+</div>
+</body>
+</html>

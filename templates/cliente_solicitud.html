@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi Solicitud - CookingBox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+
+    <div style="text-align:center; margin-bottom:16px;">
+        <h1>CookingBox Food Trailers</h1>
+        <p style="color:#666; margin:0;">Bienvenido, <strong>{{ cliente_nombre }}</strong></p>
+        <a href="{{ url_for('cliente_logout') }}" style="font-size:0.8rem; color:#c0392b;">Cerrar sesión</a>
+    </div>
+
+    {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+    <div style="background:#d5f5e3; color:#1e8449; padding:12px; border-radius:8px; margin-bottom:12px; font-size:0.9rem;">
+        {{ msgs[0] }}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        {% if completo %}
+        <p><span class="badge-ok">Tu solicitud está completa — CookingBox la está revisando</span></p>
+        {% else %}
+        <p><span class="badge-no">Solicitud incompleta — {{ pendientes|length }} sección(es) pendiente(s)</span></p>
+        <ul class="pendientes">
+            {% for p in pendientes %}<li>{{ p }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        <p style="font-size:0.85rem; color:#888; margin:8px 0 0;">
+            Puedes guardar tu progreso y regresar cuando quieras. Tu información es privada y segura.
+        </p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <div class="card">
+            <h2>Down Payment</h2>
+            <label for="down_payment">¿Cuánto tienes disponible para el down payment? (USD)</label>
+            <input type="number" step="0.01" min="0" id="down_payment" name="down_payment"
+                   value="{{ solicitud.down_payment if solicitud.down_payment else '' }}" required>
+        </div>
+
+        {% for prefijo, titulo, persona in [
+            ("aplicante",   "Tus datos (Aplicante Principal)",  solicitud.aplicante),
+            ("coaplicante", "Datos del Coaplicante / Socio",    solicitud.coaplicante)
+        ] %}
+        <div class="card">
+            <h2>{{ titulo }}</h2>
+
+            <label>Nombre completo</label>
+            <input type="text" name="{{ prefijo }}_nombre" value="{{ persona.get('nombre','') }}" required>
+
+            <label>Dirección</label>
+            <input type="text" name="{{ prefijo }}_direccion" value="{{ persona.get('direccion','') }}" required>
+
+            <label>Teléfono</label>
+            <input type="text" name="{{ prefijo }}_telefono" value="{{ persona.get('telefono','') }}" required>
+
+            <label>Correo electrónico</label>
+            <input type="email" name="{{ prefijo }}_email" value="{{ persona.get('email','') }}">
+
+            <label>Tiempo solicitado del contrato</label>
+            <select name="{{ prefijo }}_plazo" required>
+                <option value="">-- Seleccionar plazo --</option>
+                {% for p in plazos %}
+                <option value="{{ p }}" {% if persona.get('plazo') == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+
+            {% if prefijo == "aplicante" %}
+            <label>Dirección donde pondrás a trabajar el trailer</label>
+            <input type="text" name="aplicante_direccion_trailer"
+                   value="{{ persona.get('direccion_trailer','') }}" required>
+            {% endif %}
+
+            <label>Red social (solo una — ej: @tuusuario en Instagram)</label>
+            <input type="text" name="{{ prefijo }}_red_social"
+                   value="{{ persona.get('red_social','') }}" placeholder="@usuario o URL">
+
+            <hr class="divider">
+            <h3>5 Referencias Personales</h3>
+            <p style="font-size:0.85rem; color:#666; margin-top:0;">Nombre, teléfono y parentesco de cada referencia.</p>
+
+            {% set refs = persona.get('referencias', [{},{},{},{},{}]) %}
+            {% for i in range(1, 6) %}
+            {% set ref = refs[i-1] if refs|length >= i else {} %}
+            <p style="font-weight:600; color:#c0392b; margin:10px 0 4px;">Referencia {{ i }}</p>
+            <div class="ref-grid">
+                <div>
+                    <label>Nombre</label>
+                    <input type="text" name="{{ prefijo }}_ref{{ i }}_nombre" value="{{ ref.get('nombre','') }}">
+                </div>
+                <div>
+                    <label>Teléfono</label>
+                    <input type="text" name="{{ prefijo }}_ref{{ i }}_telefono" value="{{ ref.get('telefono','') }}">
+                </div>
+                <div>
+                    <label>Parentesco</label>
+                    <select name="{{ prefijo }}_ref{{ i }}_parentesco">
+                        <option value="">-- Parentesco --</option>
+                        {% for par in parentescos %}
+                        <option value="{{ par }}" {% if ref.get('parentesco') == par %}selected{% endif %}>{{ par }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% endfor %}
+
+            <hr class="divider">
+            <h3>Documentos</h3>
+            <p style="font-size:0.85rem; color:#666; margin-top:0;">Sube fotos o escaneos claros (JPG, PNG o PDF).</p>
+
+            <label>📷 Foto de tu ID (pasaporte o licencia)</label>
+            {% if persona.get('id_doc') %}
+            <p class="file-actual">✅ Ya cargado — sube uno nuevo para reemplazar</p>
+            {% endif %}
+            <input type="file" name="{{ prefijo }}_id_doc" accept=".jpg,.jpeg,.png,.pdf,.heic">
+
+            <label>🏠 Comprobante de domicilio</label>
+            {% if persona.get('comprobante') %}
+            <p class="file-actual">✅ Ya cargado — sube uno nuevo para reemplazar</p>
+            {% endif %}
+            <input type="file" name="{{ prefijo }}_comprobante" accept=".jpg,.jpeg,.png,.pdf,.heic">
+
+            {% if prefijo == "aplicante" %}
+            <label>🏦 Estado de cuenta (que muestre tu capital para el down payment)</label>
+            {% if persona.get('estado_cuenta') %}
+            <p class="file-actual">✅ Ya cargado — sube uno nuevo para reemplazar</p>
+            {% endif %}
+            <input type="file" name="aplicante_estado_cuenta" accept=".jpg,.jpeg,.png,.pdf,.heic">
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit">Guardar mi solicitud</button>
+    </form>
+
+    <p style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:24px;">
+        CookingBox Food Trailers — Tu información está protegida y es confidencial.
+    </p>
+</div>
+</body>
+</html>

@@ -1,12 +1,17 @@
 import json
 import os
 import uuid
+import secrets
+import string
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, flash
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB max por archivo
+app.secret_key = "cookingbox-secret-2026-xK9#mP"
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 app.jinja_env.globals.update(enumerate=enumerate)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -14,6 +19,7 @@ DATA_FILE = os.path.join(DATA_DIR, "trailers.json")
 SOLICITUDES_FILE = os.path.join(DATA_DIR, "solicitudes.json")
 LEADS_FILE = os.path.join(DATA_DIR, "leads.json")
 COTIZADOR_CONFIG = os.path.join(DATA_DIR, "cotizador_config.json")
+CLIENTES_FILE = os.path.join(DATA_DIR, "clientes_acceso.json")
 UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 
 ALLOWED_EXTENSIONS = {"pdf", "jpg", "jpeg", "png", "heic"}
@@ -51,6 +57,28 @@ def load_solicitudes():
 
 def save_solicitudes(s):
     save_json(SOLICITUDES_FILE, s)
+
+
+def load_clientes():
+    return load_json(CLIENTES_FILE)
+
+
+def save_clientes(c):
+    save_json(CLIENTES_FILE, c)
+
+
+def generar_clave(longitud=8):
+    chars = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(chars) for _ in range(longitud))
+
+
+def cliente_login_requerido(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("cliente_id"):
+            return redirect(url_for("cliente_login"))
+        return f(*args, **kwargs)
+    return decorated
 
 
 def load_leads():
@@ -229,6 +257,102 @@ def leads_lista():
     leads = load_leads()
     leads.sort(key=lambda x: x["fecha"], reverse=True)
     return render_template("leads.html", leads=leads)
+
+
+# ── Portal público del cliente ─────────────────────────────────────────────
+
+@app.route("/cliente/login", methods=["GET", "POST"])
+def cliente_login():
+    error = None
+    if request.method == "POST":
+        usuario = request.form.get("usuario", "").strip().lower()
+        clave = request.form.get("clave", "").strip()
+        clientes = load_clientes()
+        cliente = next((c for c in clientes if c["usuario"] == usuario), None)
+        if cliente and check_password_hash(cliente["clave_hash"], clave):
+            session["cliente_id"] = cliente["id"]
+            session["cliente_nombre"] = cliente["nombre"]
+            return redirect(url_for("cliente_solicitud"))
+        error = "Usuario o contraseña incorrectos. Verifica tus datos."
+    return render_template("cliente_login.html", error=error)
+
+
+@app.route("/cliente/logout")
+def cliente_logout():
+    session.pop("cliente_id", None)
+    session.pop("cliente_nombre", None)
+    return redirect(url_for("cliente_login"))
+
+
+@app.route("/cliente/solicitud", methods=["GET", "POST"])
+@cliente_login_requerido
+def cliente_solicitud():
+    clientes = load_clientes()
+    cliente = next((c for c in clientes if c["id"] == session["cliente_id"]), None)
+    if not cliente:
+        return redirect(url_for("cliente_logout"))
+
+    solicitudes = load_solicitudes()
+    s = next((x for x in solicitudes if x["id"] == cliente["solicitud_id"]), None)
+
+    if request.method == "POST":
+        try:
+            s["down_payment"] = float(request.form.get("down_payment", "0"))
+        except ValueError:
+            s["down_payment"] = 0
+        s["aplicante"] = persona_desde_form(
+            request.form, request.files, "aplicante", s["id"], s.get("aplicante"))
+        s["coaplicante"] = persona_desde_form(
+            request.form, request.files, "coaplicante", s["id"], s.get("coaplicante"))
+        save_solicitudes(solicitudes)
+        flash("Información guardada correctamente.")
+        return redirect(url_for("cliente_solicitud"))
+
+    pendientes, completo = evaluar_requisitos(s)
+    return render_template("cliente_solicitud.html",
+                           solicitud=s, pendientes=pendientes, completo=completo,
+                           plazos=PLAZOS, parentescos=PARENTESCOS,
+                           cliente_nombre=session["cliente_nombre"])
+
+
+# ── Gestión de accesos de clientes (admin) ────────────────────────────────
+
+@app.route("/admin/clientes")
+def admin_clientes():
+    clientes = load_clientes()
+    solicitudes = load_solicitudes()
+    sol_map = {s["id"]: s for s in solicitudes}
+    return render_template("admin_clientes.html", clientes=clientes, sol_map=sol_map)
+
+
+@app.route("/admin/clientes/crear", methods=["POST"])
+def admin_crear_cliente():
+    solicitud_id = request.form.get("solicitud_id", "").strip()
+    solicitudes = load_solicitudes()
+    s = next((x for x in solicitudes if x["id"] == solicitud_id), None)
+    if not s:
+        return redirect(url_for("admin_clientes"))
+
+    clientes = load_clientes()
+    # Si ya existe acceso para esta solicitud, no duplicar
+    if any(c["solicitud_id"] == solicitud_id for c in clientes):
+        return redirect(url_for("admin_clientes"))
+
+    nombre = s["aplicante"].get("nombre", "cliente")
+    clave_plain = generar_clave(8)
+    usuario = nombre.split()[0].lower() + str(uuid.uuid4())[:4]
+
+    clientes.append({
+        "id": str(uuid.uuid4())[:8],
+        "solicitud_id": solicitud_id,
+        "nombre": nombre,
+        "usuario": usuario,
+        "clave_hash": generate_password_hash(clave_plain),
+        "clave_visible": clave_plain,
+        "creado": datetime.now().isoformat(timespec="seconds"),
+    })
+    save_clientes(clientes)
+    return redirect(url_for("admin_clientes"))
 
 
 @app.route("/precalifica", methods=["GET", "POST"])
