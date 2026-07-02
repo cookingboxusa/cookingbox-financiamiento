@@ -127,6 +127,18 @@
             <table>
                 <tr><th>Incluir</th><th>Equipo</th><th>Precio</th><th>Qty</th></tr>
                 {% for i, eq in enumerate(cfg.equipos) %}
+                {% if eq.get('siempre') %}
+                <tr style="background:#eafaf1;">
+                    <td style="text-align:center;">✅</td>
+                    <td><strong>{{ eq.nombre }}</strong> <span style="font-size:0.75rem; color:#888;">(siempre incluido)</span></td>
+                    <td>${{ '{:,.0f}'.format(eq.precio) }}</td>
+                    <td>
+                        <input type="hidden" name="equipo_{{ i }}" value="on">
+                        <input type="hidden" name="qty_{{ i }}" value="1">
+                        <span class="eq-siempre" data-precio="{{ eq.precio }}" style="color:#888;">1</span>
+                    </td>
+                </tr>
+                {% else %}
                 <tr>
                     <td>
                         <input type="checkbox" name="equipo_{{ i }}" class="eq-check"
@@ -145,6 +157,7 @@
                                oninput="calcularVivo()">
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </table>
         </div>
@@ -302,6 +315,10 @@ function calcularVivo() {
             const qty = parseInt(document.querySelectorAll('.eq-qty')[i].value) || 1;
             totalEquipos += parseFloat(cb.dataset.precio) * qty;
         }
+    });
+    // Equipos siempre incluidos (Fire Suppression, etc.)
+    document.querySelectorAll('.eq-siempre').forEach(el => {
+        totalEquipos += parseFloat(el.dataset.precio) || 0;
     });
 
     // Extras por trailer
