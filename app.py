@@ -425,6 +425,12 @@ def cotizador():
         cliente_nombre = form.get("cliente_nombre", "").strip()
         cliente_telefono = form.get("cliente_telefono", "").strip()
 
+        # Hood seleccionado
+        hood_idx = int(form.get("hood_idx", 0) or 0)
+        hood_opciones = cfg.get("hood_opciones", [])
+        hood_sel = hood_opciones[hood_idx] if hood_opciones else None
+        total_hood = hood_sel["precio"] if hood_sel else 0
+
         equipos_sel = []
         total_equipos = 0
         for i, eq in enumerate(cfg["equipos"]):
@@ -443,7 +449,7 @@ def cotizador():
                 total_extras += ex["precio"]
 
         precio_trailer = trailer["precio"]
-        valor_venta = precio_trailer + total_equipos + total_extras
+        valor_venta = precio_trailer + total_hood + total_equipos + total_extras
         monto_financiado = valor_venta - down_payment
         pago_semanal = calcular_pago_semanal(monto_financiado)
 
@@ -453,8 +459,10 @@ def cotizador():
             "cliente_nombre": cliente_nombre,
             "cliente_telefono": cliente_telefono,
             "equipos_sel": equipos_sel,
+            "hood_sel": hood_sel,
             "extras_sel": extras_sel,
             "precio_trailer": precio_trailer,
+            "total_hood": total_hood,
             "total_equipos": total_equipos,
             "total_extras": total_extras,
             "valor_venta": valor_venta,
