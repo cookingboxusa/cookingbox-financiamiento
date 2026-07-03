@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cotizador - CookingBox</title>
+    <title>Simulador de Financiamiento - CookingBox</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -50,7 +50,8 @@
 </head>
 <body>
 <div class="container" style="max-width:780px;">
-    <h1>Cotizador CookingBox</h1>
+    <h1>Simulador de Financiamiento</h1>
+    <p style="text-align:center; color:#666; margin:-12px 0 16px; font-size:0.9rem;">CookingBox Food Trailers — Sin revisión de crédito</p>
 
     <form method="POST" id="cotizadorForm">
 
@@ -162,10 +163,10 @@
             </table>
         </div>
 
-        <button type="submit">Generar cotización para descargar</button>
+        <button type="submit">Ver resultado del simulador</button>
     </form>
 
-    {# ── Cotización descargable (solo si POST) ── #}
+    {# ── Resultado del simulador (solo si POST) ── #}
     {% if resultado %}
     <hr class="divider">
     <div id="documento-cotizacion" style="background:white; padding:30px; border-radius:12px; margin-top:8px; font-family:Arial,sans-serif; max-width:700px;">
@@ -173,7 +174,7 @@
         <div style="text-align:center; margin-bottom:18px;">
             <h2 style="color:#c0392b; font-size:1.4rem; margin:0;">COOKINGBOX FOOD TRAILERS</h2>
             <p style="margin:4px 0; font-size:0.88rem; color:#555;">Pharr, TX | cookingboxusa.com</p>
-            <h3 style="margin:8px 0 0; font-size:1rem;">COTIZACIÓN DE FINANCIAMIENTO — SIN REVISIÓN DE CRÉDITO</h3>
+            <h3 style="margin:8px 0 0; font-size:1rem;">SIMULADOR DE FINANCIAMIENTO — SIN REVISIÓN DE CRÉDITO</h3>
         </div>
 
         <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:12px;">
@@ -261,7 +262,7 @@
         </p>
     </div>
     <button type="button" onclick="descargarJPEG()" style="margin-top:10px; background:#1e8449;">
-        Descargar cotización como JPEG
+        Descargar simulación como JPEG
     </button>
     {% endif %}
 
@@ -389,7 +390,7 @@ function descargarJPEG() {
     const el = document.getElementById('documento-cotizacion');
     html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'cotizacion_cookingbox.jpg';
+        link.download = 'simulacion_financiamiento_cookingbox.jpg';
         link.href = canvas.toDataURL('image/jpeg', 0.95);
         link.click();
     });
