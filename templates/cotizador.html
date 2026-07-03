@@ -264,6 +264,43 @@
     <button type="button" onclick="descargarJPEG()" style="margin-top:10px; background:#1e8449;">
         Descargar simulación como JPEG
     </button>
+
+    {# ── CTA: Quiero aplicar ── #}
+    <div style="
+        background: linear-gradient(135deg, #1a1a2e 0%, #c0392b 100%);
+        border-radius: 16px;
+        padding: 32px 24px;
+        text-align: center;
+        margin-top: 24px;
+        color: white;
+    ">
+        <p style="font-size:0.85rem; letter-spacing:2px; text-transform:uppercase; opacity:0.75; margin:0 0 8px;">¿Te convencieron los números?</p>
+        <h2 style="font-size:1.8rem; font-weight:900; margin:0 0 10px; line-height:1.2;">
+            Tu food trailer te está esperando
+        </h2>
+        <p style="font-size:1rem; opacity:0.88; margin:0 0 24px; max-width:440px; margin-left:auto; margin-right:auto;">
+            Sin revisión de crédito. Sin complicaciones.<br>
+            Da el siguiente paso — aplica hoy y empieza a construir tu negocio.
+        </p>
+        <a href="{{ url_for('precalifica') }}" style="
+            display: inline-block;
+            background: white;
+            color: #c0392b;
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 14px 36px;
+            border-radius: 50px;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            transition: transform 0.15s;
+        " onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+            Quiero aplicar ahora →
+        </a>
+        <p style="font-size:0.75rem; opacity:0.55; margin:16px 0 0;">
+            CookingBox Food Trailers · Pharr, TX · cookingboxusa.com
+        </p>
+    </div>
     {% endif %}
 
     <a class="nav-link" href="{{ url_for('index') }}">Panel principal</a>
