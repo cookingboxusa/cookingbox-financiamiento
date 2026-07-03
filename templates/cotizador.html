@@ -515,9 +515,15 @@ function getValues() {
         totalEquipos += parseFloat(el.dataset.precio) || 0;
     });
 
+    // Extras visibles seleccionados
     let totalExtras = 0;
     document.querySelectorAll('.extra-check').forEach(cb => {
         if (cb.checked) totalExtras += parseFloat(cb.dataset.precio) || 0;
+    });
+    // Extras ocultos (color) — siempre se suman
+    const idx2 = parseInt(document.getElementById('trailer_idx').value) || 0;
+    (trailerExtras[idx2] || []).forEach(ex => {
+        if (ex.oculto) totalExtras += parseFloat(ex.precio) || 0;
     });
 
     const valorVenta    = trailerPrecio + hoodPrecio + totalEquipos + totalExtras;
@@ -536,12 +542,14 @@ function onTrailerChange() {
     const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
     const extras = trailerExtras[idx] || [];
     const cont = document.getElementById('extras-container');
-    if (!extras.length) { cont.innerHTML = ''; return; }
+    // Solo mostrar extras que NO sean ocultos
+    const visibles = extras.filter(ex => !ex.oculto);
+    if (!visibles.length) { cont.innerHTML = ''; return; }
     cont.innerHTML = `
         <div class="card">
             <p class="card-label">Extras disponibles</p>
             <div class="pills">
-                ${extras.map((ex, i) => `
+                ${visibles.map((ex, i) => `
                 <div class="pill-item">
                     <input type="checkbox" id="extra_${i}" class="extra-check"
                            data-precio="${ex.precio}" onchange="recalcular()">
