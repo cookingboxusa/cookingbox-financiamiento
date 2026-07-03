@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Simulador de Financiamiento — CookingBox</title>
+    <title>Financing Simulator — CookingBox</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,6 +22,7 @@
             border-bottom: 1px solid #e5e5e5;
             padding: 32px 24px 28px;
             text-align: center;
+            position: relative;
         }
         .hero .brand {
             font-size: 0.72rem;
@@ -38,17 +39,39 @@
             color: #1d1d1f;
             margin-bottom: 6px;
         }
-        .hero p {
-            font-size: 0.95rem;
+        .hero p { font-size: 0.95rem; color: #6e6e73; }
+
+        /* ── Language toggle ── */
+        .lang-toggle {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .lang-btn {
+            background: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
             color: #6e6e73;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+            border-right: 1.5px solid #d2d2d7;
+        }
+        .lang-btn:last-child { border-right: none; }
+        .lang-btn.active {
+            background: #1d1d1f;
+            color: white;
         }
 
         /* ── Container ── */
-        .wrap {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
+        .wrap { max-width: 600px; margin: 0 auto; padding: 0 16px; }
 
         /* ── Cards ── */
         .card {
@@ -66,6 +89,11 @@
             color: #6e6e73;
             margin-bottom: 14px;
         }
+        .card-desc {
+            font-size: 0.82rem;
+            color: #6e6e73;
+            margin-bottom: 14px;
+        }
 
         /* ── Down payment input ── */
         .dp-wrap {
@@ -77,32 +105,16 @@
             transition: border-color 0.15s;
         }
         .dp-wrap:focus-within { border-color: #c0392b; }
-        .dp-symbol {
-            font-size: 1.4rem;
-            font-weight: 300;
-            color: #6e6e73;
-            margin-right: 6px;
-        }
+        .dp-symbol { font-size: 1.4rem; font-weight: 300; color: #6e6e73; margin-right: 6px; }
         #down_payment {
-            border: none;
-            outline: none;
-            font-size: 2rem;
-            font-weight: 300;
-            color: #1d1d1f;
-            width: 100%;
-            padding: 16px 0;
-            background: transparent;
-            -moz-appearance: textfield;
+            border: none; outline: none;
+            font-size: 2rem; font-weight: 300;
+            color: #1d1d1f; width: 100%;
+            padding: 16px 0; background: transparent;
         }
-        #down_payment::-webkit-outer-spin-button,
-        #down_payment::-webkit-inner-spin-button { -webkit-appearance: none; }
-        .dp-hint {
-            font-size: 0.8rem;
-            color: #aeaeb2;
-            margin-top: 8px;
-        }
+        .dp-hint { font-size: 0.8rem; color: #aeaeb2; margin-top: 8px; }
 
-        /* ── Select trailer ── */
+        /* ── Select ── */
         .clean-select {
             width: 100%;
             border: 1.5px solid #d2d2d7;
@@ -111,16 +123,14 @@
             font-size: 1rem;
             color: #1d1d1f;
             background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aeaeb2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 18px center;
-            -webkit-appearance: none;
-            appearance: none;
-            outline: none;
-            cursor: pointer;
+            -webkit-appearance: none; appearance: none;
+            outline: none; cursor: pointer;
             transition: border-color 0.15s;
             font-family: inherit;
         }
         .clean-select:focus { border-color: #c0392b; }
 
-        /* ── Segmented control (Hood) ── */
+        /* ── Segmented control ── */
         .segment-group {
             display: flex;
             border: 1.5px solid #d2d2d7;
@@ -129,201 +139,133 @@
         }
         .segment-group input[type="radio"] { display: none; }
         .segment-group label {
-            flex: 1;
-            text-align: center;
+            flex: 1; text-align: center;
             padding: 13px 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #6e6e73;
-            cursor: pointer;
+            font-size: 0.9rem; font-weight: 500;
+            color: #6e6e73; cursor: pointer;
             border-right: 1.5px solid #d2d2d7;
-            transition: all 0.15s;
-            background: white;
+            transition: all 0.15s; background: white;
         }
         .segment-group label:last-child { border-right: none; }
         .segment-group input[type="radio"]:checked + label {
-            background: #1d1d1f;
-            color: white;
+            background: #1d1d1f; color: white;
         }
 
-        /* ── Equipment pills ── */
-        .pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        /* ── Pills ── */
+        .pills { display: flex; flex-wrap: wrap; gap: 8px; }
         .pill-item input[type="checkbox"] { display: none; }
         .pill-item label {
             display: inline-block;
             padding: 8px 16px;
             border: 1.5px solid #d2d2d7;
             border-radius: 20px;
-            font-size: 0.85rem;
-            color: #3a3a3c;
-            cursor: pointer;
-            transition: all 0.15s;
-            white-space: nowrap;
+            font-size: 0.85rem; color: #3a3a3c;
+            cursor: pointer; transition: all 0.15s;
             background: white;
         }
         .pill-item input[type="checkbox"]:checked + label {
-            background: #1d1d1f;
-            color: white;
-            border-color: #1d1d1f;
+            background: #1d1d1f; color: white; border-color: #1d1d1f;
         }
         .pill-always {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            background: #f0f0f0;
-            color: #6e6e73;
+            display: inline-block; padding: 8px 16px;
+            border-radius: 20px; font-size: 0.85rem;
+            background: #f0f0f0; color: #6e6e73;
             border: 1.5px solid #e5e5ea;
         }
 
-        /* ── Qty inputs hidden (we keep qty=1 always) ── */
-
         /* ── Calculate button ── */
         .btn-calc {
-            display: block;
-            width: 100%;
-            margin-top: 24px;
-            background: #c0392b;
-            color: white;
-            border: none;
-            border-radius: 14px;
-            padding: 18px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
+            display: block; width: 100%; margin-top: 24px;
+            background: #c0392b; color: white;
+            border: none; border-radius: 14px;
+            padding: 18px; font-size: 1.05rem; font-weight: 600;
+            font-family: inherit; cursor: pointer;
             letter-spacing: 0.2px;
             transition: opacity 0.15s, transform 0.1s;
         }
         .btn-calc:active { opacity: 0.85; transform: scale(0.99); }
 
-        /* ── Result card ── */
-        #resultado-wrap {
-            display: none;
-            margin-top: 20px;
-        }
+        /* ── Result ── */
+        #resultado-wrap { display: none; margin-top: 20px; }
         .result-card {
-            background: #1d1d1f;
-            border-radius: 24px;
-            padding: 40px 28px 32px;
-            text-align: center;
-            color: white;
+            background: #1d1d1f; border-radius: 24px;
+            padding: 40px 28px 32px; text-align: center; color: white;
         }
         .result-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 12px;
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 2.5px; text-transform: uppercase;
+            color: rgba(255,255,255,0.5); margin-bottom: 12px;
         }
         .result-amount {
-            font-size: 3.5rem;
-            font-weight: 700;
-            letter-spacing: -2px;
-            line-height: 1;
-            margin-bottom: 8px;
+            font-size: 3.5rem; font-weight: 700;
+            letter-spacing: -2px; line-height: 1; margin-bottom: 8px;
         }
         .result-payment {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.65);
-            margin-bottom: 28px;
+            font-size: 1.1rem; color: rgba(255,255,255,0.65); margin-bottom: 28px;
         }
-        .result-payment strong {
-            color: white;
-        }
-
-        /* down adicional warning */
+        .result-payment strong { color: white; }
         .result-warning {
             background: rgba(255,204,0,0.12);
             border: 1px solid rgba(255,204,0,0.3);
-            border-radius: 12px;
-            padding: 14px 16px;
-            font-size: 0.85rem;
-            color: #ffd60a;
-            margin-bottom: 24px;
-            text-align: left;
+            border-radius: 12px; padding: 14px 16px;
+            font-size: 0.85rem; color: #ffd60a;
+            margin-bottom: 24px; text-align: left;
         }
-
-        /* no califica */
         .result-card.no-califica { background: #3a3a3c; }
-        .result-no {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .result-no-sub {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.55);
-        }
-
-        /* CTA dentro del resultado */
+        .result-no { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; }
+        .result-no-sub { font-size: 0.9rem; color: rgba(255,255,255,0.55); }
         .btn-apply {
-            display: inline-block;
-            background: white;
-            color: #1d1d1f;
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 14px 32px;
-            border-radius: 50px;
-            text-decoration: none;
-            letter-spacing: 0.2px;
+            display: inline-block; background: white; color: #1d1d1f;
+            font-weight: 700; font-size: 0.95rem;
+            padding: 14px 32px; border-radius: 50px;
+            text-decoration: none; letter-spacing: 0.2px;
             transition: opacity 0.15s;
         }
         .btn-apply:hover { opacity: 0.88; }
 
-        /* Nav link */
         .nav-back {
-            display: block;
-            text-align: center;
-            margin-top: 28px;
-            font-size: 0.85rem;
-            color: #aeaeb2;
-            text-decoration: none;
+            display: block; text-align: center; margin-top: 28px;
+            font-size: 0.85rem; color: #aeaeb2; text-decoration: none;
         }
         .nav-back:hover { color: #6e6e73; }
 
-        /* hidden jpeg doc */
         #doc-jpeg {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            background: white;
-            padding: 30px;
-            width: 680px;
-            font-family: Arial, sans-serif;
-            font-size: 13px;
+            position: absolute; left: -9999px; top: 0;
+            background: white; padding: 30px; width: 680px;
+            font-family: Arial, sans-serif; font-size: 13px;
         }
     </style>
 </head>
 <body>
 
 <div class="hero">
+    <!-- Language toggle -->
+    <div class="lang-toggle">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+    </div>
+
     <p class="brand">CookingBox Food Trailers</p>
-    <h1>Simulador de Financiamiento</h1>
-    <p>Sin revisión de historial de crédito</p>
+    <h1 data-i18n="title">Financing Simulator</h1>
+    <p data-i18n="subtitle">No credit history check</p>
 </div>
 
 <div class="wrap">
 
     <!-- Down payment -->
     <div class="card">
-        <p class="card-label">Down Payment disponible</p>
+        <p class="card-label" data-i18n="dp_label">Available Down Payment</p>
         <div class="dp-wrap">
             <span class="dp-symbol">$</span>
             <input type="text" id="down_payment" inputmode="numeric"
                    placeholder="0" oninput="formatearDP(this)">
         </div>
-        <p class="dp-hint">Monto inicial que puedes aportar</p>
+        <p class="dp-hint" data-i18n="dp_hint">Initial amount you can contribute</p>
     </div>
 
     <!-- Trailer -->
     <div class="card">
-        <p class="card-label">Tamaño del trailer</p>
+        <p class="card-label" data-i18n="trailer_label">Trailer Size</p>
         <select class="clean-select" id="trailer_idx" onchange="onTrailerChange()">
             {% for i, t in enumerate(cfg.trailers) %}
             <option value="{{ i }}" data-precio="{{ t.precio }}">{{ t.modelo }}</option>
@@ -333,7 +275,7 @@
 
     <!-- Hood -->
     <div class="card">
-        <p class="card-label">Tamaño del Hood</p>
+        <p class="card-label" data-i18n="hood_label">Hood Size</p>
         <div class="segment-group">
             {% for i, h in enumerate(cfg.hood_opciones) %}
             <input type="radio" name="hood_idx" id="hood_{{ i }}"
@@ -345,12 +287,10 @@
         </div>
     </div>
 
-    <!-- Equipos incluidos en el trailer -->
+    <!-- Equipos incluidos -->
     <div class="card">
-        <p class="card-label">Ya incluido en tu trailer</p>
-        <p style="font-size:0.82rem; color:#6e6e73; margin-bottom:14px;">
-            Estos equipos vienen de fábrica con el trailer.
-        </p>
+        <p class="card-label" data-i18n="included_label">Already Included in Your Trailer</p>
+        <p class="card-desc" data-i18n="included_desc">These items come standard with the trailer.</p>
         <div class="pills">
             {% for i, eq in enumerate(cfg.equipos) %}
             {% if eq.get('categoria') == 'incluido' %}
@@ -360,8 +300,7 @@
                 {% else %}
                 <div class="pill-item">
                     <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
-                           class="eq-check"
-                           {% if eq.get('default') %}checked{% endif %}
+                           class="eq-check" {% if eq.get('default') %}checked{% endif %}
                            onchange="recalcular()">
                     <label for="eq_{{ i }}">{{ eq.nombre }}</label>
                 </div>
@@ -373,17 +312,14 @@
 
     <!-- Equipo de cocina -->
     <div class="card">
-        <p class="card-label">Equipo de cocina</p>
-        <p style="font-size:0.82rem; color:#6e6e73; margin-bottom:14px;">
-            Selecciona los equipos de cocina que necesitas para tu negocio.
-        </p>
+        <p class="card-label" data-i18n="kitchen_label">Kitchen Equipment</p>
+        <p class="card-desc" data-i18n="kitchen_desc">Select the kitchen equipment you need for your business.</p>
         <div class="pills">
             {% for i, eq in enumerate(cfg.equipos) %}
             {% if eq.get('categoria') == 'cocina' and not eq.get('oculto') %}
             <div class="pill-item">
                 <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
-                       class="eq-check"
-                       onchange="recalcular()">
+                       class="eq-check" onchange="recalcular()">
                 <label for="eq_{{ i }}">{{ eq.nombre }}</label>
             </div>
             {% elif eq.get('oculto') and not eq.get('siempre') %}
@@ -395,17 +331,14 @@
 
     <!-- Refrigeración -->
     <div class="card">
-        <p class="card-label">Refrigeración</p>
-        <p style="font-size:0.82rem; color:#6e6e73; margin-bottom:14px;">
-            Elige el sistema de refrigeración que mejor se adapte a tu menú.
-        </p>
+        <p class="card-label" data-i18n="refrig_label">Refrigeration</p>
+        <p class="card-desc" data-i18n="refrig_desc">Choose the refrigeration system that best fits your menu.</p>
         <div class="pills">
             {% for i, eq in enumerate(cfg.equipos) %}
             {% if eq.get('categoria') == 'refrigeracion' %}
             <div class="pill-item">
                 <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
-                       class="eq-check"
-                       onchange="recalcular()">
+                       class="eq-check" onchange="recalcular()">
                 <label for="eq_{{ i }}">{{ eq.nombre }}</label>
             </div>
             {% endif %}
@@ -413,75 +346,166 @@
         </div>
     </div>
 
-    <!-- Extras (dinámicos por trailer, hidden) -->
+    <!-- Extras dinámicos -->
     <div id="extras-container"></div>
 
     <!-- Botón calcular -->
-    <button class="btn-calc" onclick="calcular()">Calcular mi financiamiento</button>
+    <button class="btn-calc" onclick="calcular()" data-i18n="btn_calc">Calculate my financing</button>
 
     <!-- Resultado -->
     <div id="resultado-wrap">
-        <div id="resultado-card" class="result-card">
-            <!-- se llena con JS -->
-        </div>
+        <div id="resultado-card" class="result-card"></div>
     </div>
 
-    <a href="{{ url_for('index') }}" class="nav-back">← Panel principal</a>
+    <a href="{{ url_for('index') }}" class="nav-back" data-i18n="nav_back">← Main Panel</a>
 </div>
 
-<!-- Documento oculto solo para JPEG (uso interno) -->
+<!-- Doc oculto para JPEG interno -->
 <div id="doc-jpeg">
     <div style="text-align:center; margin-bottom:18px;">
         <div style="font-size:20px; font-weight:700; color:#c0392b;">COOKINGBOX FOOD TRAILERS</div>
         <div style="font-size:12px; color:#555; margin-top:4px;">Pharr, TX · cookingboxusa.com</div>
-        <div style="font-size:13px; font-weight:600; margin-top:6px;">SIMULADOR DE FINANCIAMIENTO — SIN REVISIÓN DE CRÉDITO</div>
+        <div style="font-size:13px; font-weight:600; margin-top:6px;" id="jpeg-titulo">FINANCING SIMULATOR — NO CREDIT CHECK</div>
     </div>
     <table style="width:100%; border-collapse:collapse; font-size:12px;">
         <tr style="background:#1d1d1f; color:white;">
-            <td style="padding:8px 10px; font-weight:700; width:70%;">CONCEPTO</td>
-            <td style="padding:8px 10px; text-align:right; font-weight:700;">MONTO</td>
+            <td style="padding:8px 10px; font-weight:700; width:70%;" id="jpeg-col-concepto">ITEM</td>
+            <td style="padding:8px 10px; text-align:right; font-weight:700;" id="jpeg-col-monto">AMOUNT</td>
         </tr>
-        <tr id="jpeg-trailer-row" style="border-bottom:1px solid #eee;">
+        <tr style="border-bottom:1px solid #eee;">
             <td style="padding:7px 10px;" id="jpeg-trailer-nombre"></td>
             <td style="padding:7px 10px; text-align:right;" id="jpeg-trailer-precio"></td>
         </tr>
-        <tr id="jpeg-hood-row" style="border-bottom:1px solid #eee;">
+        <tr style="border-bottom:1px solid #eee;">
             <td style="padding:7px 10px;" id="jpeg-hood-nombre"></td>
             <td style="padding:7px 10px; text-align:right;" id="jpeg-hood-precio"></td>
         </tr>
         <tbody id="jpeg-equipos"></tbody>
         <tbody id="jpeg-extras"></tbody>
         <tr style="background:#f5f5f5; border-top:2px solid #ddd;">
-            <td style="padding:8px 10px; font-weight:600;">Valor total</td>
+            <td style="padding:8px 10px; font-weight:600;" id="jpeg-lbl-total">Total value</td>
             <td style="padding:8px 10px; text-align:right; font-weight:600;" id="jpeg-valor"></td>
         </tr>
         <tr style="border-bottom:1px solid #eee;">
-            <td style="padding:8px 10px;">Down payment</td>
+            <td style="padding:8px 10px;" id="jpeg-lbl-dp">Down payment</td>
             <td style="padding:8px 10px; text-align:right; color:#1e8449;" id="jpeg-dp"></td>
         </tr>
         <tr style="background:#1d1d1f; color:white;">
-            <td style="padding:10px 10px; font-weight:700; font-size:14px;">MONTO APROBADO PARA FINANCIAR</td>
-            <td style="padding:10px 10px; text-align:right; font-weight:700; font-size:14px;" id="jpeg-aprobado"></td>
+            <td style="padding:10px; font-weight:700; font-size:14px;" id="jpeg-lbl-aprobado">APPROVED FINANCING AMOUNT</td>
+            <td style="padding:10px; text-align:right; font-weight:700; font-size:14px;" id="jpeg-aprobado"></td>
         </tr>
         <tr style="background:#c0392b; color:white;">
-            <td style="padding:10px 10px; font-weight:700;">PAGO MENSUAL — 36 MESES</td>
-            <td style="padding:10px 10px; text-align:right; font-weight:700;" id="jpeg-mensual"></td>
+            <td style="padding:10px; font-weight:700;" id="jpeg-lbl-mensual">MONTHLY PAYMENT — 36 MONTHS</td>
+            <td style="padding:10px; text-align:right; font-weight:700;" id="jpeg-mensual"></td>
         </tr>
     </table>
-    <p style="font-size:10px; color:#aaa; text-align:center; margin-top:14px;">
-        CookingBox Food Trailers · Sin revisión de historial de crédito
+    <p style="font-size:10px; color:#aaa; text-align:center; margin-top:14px;" id="jpeg-footer">
+        CookingBox Food Trailers · No credit history check
     </p>
 </div>
 
 <script>
-const MONTO_MAX   = 21000;
-const trailerDownMin  = [5250, 6250, 7500, 9000, 10500];
-const trailerPrecios  = {{ cfg.trailers | map(attribute='precio') | list | tojson }};
-const trailerModelos  = {{ cfg.trailers | map(attribute='modelo') | list | tojson }};
-const trailerExtras   = {{ cfg.trailers | map(attribute='extras') | list | tojson }};
-const hoodNombres     = {{ cfg.hood_opciones | map(attribute='nombre') | list | tojson }};
-const hoodPrecios     = {{ cfg.hood_opciones | map(attribute='precio') | list | tojson }};
+// ── Traducciones ──────────────────────────────────────────────────────────────
+const T = {
+    en: {
+        title:         "Financing Simulator",
+        subtitle:      "No credit history check",
+        dp_label:      "Available Down Payment",
+        dp_hint:       "Initial amount you can contribute",
+        trailer_label: "Trailer Size",
+        hood_label:    "Hood Size",
+        included_label:"Already Included in Your Trailer",
+        included_desc: "These items come standard with the trailer.",
+        kitchen_label: "Kitchen Equipment",
+        kitchen_desc:  "Select the kitchen equipment you need for your business.",
+        refrig_label:  "Refrigeration",
+        refrig_desc:   "Choose the refrigeration system that best fits your menu.",
+        btn_calc:      "Calculate my financing",
+        result_label:  "Approved Financing Amount",
+        result_months: "36 months",
+        result_payment:"monthly payment",
+        btn_apply:     "I want to apply now  →",
+        result_footer: "No credit history check · CookingBox Food Trailers",
+        nav_back:      "← Main Panel",
+        err_no_dp:     "Enter your down payment",
+        err_no_dp_sub: "Enter the available amount above to see your approval.",
+        err_low_dp:    "Insufficient down payment",
+        err_minimum:   "Minimum required",
+        err_need:      "You need {amount} more to qualify for this trailer.",
+        warn_add:      "⚠️ To cover the full trailer cost, an additional down payment of {amount} is required (total: {total}).",
+        jpeg_titulo:   "FINANCING SIMULATOR — NO CREDIT CHECK",
+        jpeg_concepto: "ITEM",
+        jpeg_monto:    "AMOUNT",
+        jpeg_total:    "Total value",
+        jpeg_dp:       "Down payment",
+        jpeg_aprobado: "APPROVED FINANCING AMOUNT",
+        jpeg_mensual:  "MONTHLY PAYMENT — 36 MONTHS",
+        jpeg_footer:   "CookingBox Food Trailers · No credit history check",
+    },
+    es: {
+        title:         "Simulador de Financiamiento",
+        subtitle:      "Sin revisión de historial de crédito",
+        dp_label:      "Down Payment disponible",
+        dp_hint:       "Monto inicial que puedes aportar",
+        trailer_label: "Tamaño del trailer",
+        hood_label:    "Tamaño del Hood",
+        included_label:"Ya incluido en tu trailer",
+        included_desc: "Estos equipos vienen de fábrica con el trailer.",
+        kitchen_label: "Equipo de cocina",
+        kitchen_desc:  "Selecciona los equipos de cocina que necesitas para tu negocio.",
+        refrig_label:  "Refrigeración",
+        refrig_desc:   "Elige el sistema de refrigeración que mejor se adapte a tu menú.",
+        btn_calc:      "Calcular mi financiamiento",
+        result_label:  "Monto aprobado para financiar",
+        result_months: "36 meses",
+        result_payment:"pago mensual",
+        btn_apply:     "Quiero aplicar ahora  →",
+        result_footer: "Sin revisión de historial de crédito · CookingBox Food Trailers",
+        nav_back:      "← Panel principal",
+        err_no_dp:     "Ingresa tu down payment",
+        err_no_dp_sub: "Escribe el monto disponible arriba para ver tu aprobación.",
+        err_low_dp:    "Down payment insuficiente",
+        err_minimum:   "Mínimo requerido",
+        err_need:      "Necesitas {amount} adicionales para calificar para este trailer.",
+        warn_add:      "⚠️ Para cubrir el total del trailer se requieren {amount} adicionales de down payment (total: {total}).",
+        jpeg_titulo:   "SIMULADOR DE FINANCIAMIENTO — SIN REVISIÓN DE CRÉDITO",
+        jpeg_concepto: "CONCEPTO",
+        jpeg_monto:    "MONTO",
+        jpeg_total:    "Valor total",
+        jpeg_dp:       "Down payment",
+        jpeg_aprobado: "MONTO APROBADO PARA FINANCIAR",
+        jpeg_mensual:  "PAGO MENSUAL — 36 MESES",
+        jpeg_footer:   "CookingBox Food Trailers · Sin revisión de historial de crédito",
+    }
+};
 
+let lang = 'en';
+
+function setLang(l) {
+    lang = l;
+    document.getElementById('btn-en').classList.toggle('active', l === 'en');
+    document.getElementById('btn-es').classList.toggle('active', l === 'es');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (T[l][key] !== undefined) el.textContent = T[l][key];
+    });
+    document.documentElement.lang = l;
+    // Si hay resultado visible, recalcular para traducirlo
+    if (document.getElementById('resultado-wrap').style.display !== 'none') {
+        calcular();
+    }
+}
+
+// ── Datos ─────────────────────────────────────────────────────────────────────
+const MONTO_MAX      = 21000;
+const trailerDownMin = [5250, 6250, 7500, 9000, 10500];
+const trailerPrecios = {{ cfg.trailers | map(attribute='precio') | list | tojson }};
+const trailerModelos = {{ cfg.trailers | map(attribute='modelo') | list | tojson }};
+const trailerExtras  = {{ cfg.trailers | map(attribute='extras') | list | tojson }};
+const hoodNombres    = {{ cfg.hood_opciones | map(attribute='nombre') | list | tojson }};
+const hoodPrecios    = {{ cfg.hood_opciones | map(attribute='precio') | list | tojson }};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function fmt(n) {
     return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
@@ -492,18 +516,30 @@ function fmtInt(n) {
 function pagoSemanal(monto) {
     if (monto < 11000) return null;
     if (monto > 25000) monto = 25000;
-    return (190 + ((monto - 11000) / 250) * 3.67);
+    return 190 + ((monto - 11000) / 250) * 3.67;
 }
 function pagoMensual(monto) {
     const s = pagoSemanal(monto);
     return s ? Math.round(s * 52 / 12 * 100) / 100 : null;
 }
 
+function formatearDP(input) {
+    let raw = input.value.replace(/[^0-9.]/g, '');
+    const partes = raw.split('.');
+    if (partes.length > 2) raw = partes[0] + '.' + partes.slice(1).join('');
+    const entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    input.value = partes.length === 2 ? entero + '.' + partes[1] : entero;
+}
+function getDpValue() {
+    return parseFloat(document.getElementById('down_payment').value.replace(/,/g, '')) || 0;
+}
+
+// ── Cálculo ───────────────────────────────────────────────────────────────────
 function getValues() {
-    const dp          = getDpValue();
-    const idx         = parseInt(document.getElementById('trailer_idx').value) || 0;
+    const dp            = getDpValue();
+    const idx           = parseInt(document.getElementById('trailer_idx').value) || 0;
     const trailerPrecio = trailerPrecios[idx];
-    const downMin     = trailerDownMin[idx] || 0;
+    const downMin       = trailerDownMin[idx] || 0;
 
     const hoodChecked = document.querySelector('input[name="hood_idx"]:checked');
     const hoodIdx     = hoodChecked ? parseInt(hoodChecked.value) : 0;
@@ -520,14 +556,11 @@ function getValues() {
         totalEquipos += parseFloat(el.dataset.precio) || 0;
     });
 
-    // Extras visibles seleccionados
     let totalExtras = 0;
     document.querySelectorAll('.extra-check').forEach(cb => {
         if (cb.checked) totalExtras += parseFloat(cb.dataset.precio) || 0;
     });
-    // Extras ocultos (color) — siempre se suman
-    const idx2 = parseInt(document.getElementById('trailer_idx').value) || 0;
-    (trailerExtras[idx2] || []).forEach(ex => {
+    (trailerExtras[idx] || []).forEach(ex => {
         if (ex.oculto) totalExtras += parseFloat(ex.precio) || 0;
     });
 
@@ -542,30 +575,15 @@ function getValues() {
              montoBruto, montoAprobado, downAdicional, mensual };
 }
 
-function formatearDP(input) {
-    // Quitar todo excepto dígitos y punto
-    let raw = input.value.replace(/[^0-9.]/g, '');
-    // Solo un punto decimal
-    const partes = raw.split('.');
-    if (partes.length > 2) raw = partes[0] + '.' + partes.slice(1).join('');
-    // Formatear parte entera con comas
-    const entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    input.value = partes.length === 2 ? entero + '.' + partes[1] : entero;
-}
-
-function getDpValue() {
-    return parseFloat(document.getElementById('down_payment').value.replace(/,/g, '')) || 0;
-}
 function onTrailerChange() {
-    const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
+    const idx    = parseInt(document.getElementById('trailer_idx').value) || 0;
     const extras = trailerExtras[idx] || [];
-    const cont = document.getElementById('extras-container');
-    // Solo mostrar extras que NO sean ocultos
+    const cont   = document.getElementById('extras-container');
     const visibles = extras.filter(ex => !ex.oculto);
     if (!visibles.length) { cont.innerHTML = ''; return; }
     cont.innerHTML = `
         <div class="card">
-            <p class="card-label">Extras disponibles</p>
+            <p class="card-label" style="margin-bottom:10px;">Extras</p>
             <div class="pills">
                 ${visibles.map((ex, i) => `
                 <div class="pill-item">
@@ -576,20 +594,22 @@ function onTrailerChange() {
             </div>
         </div>`;
 }
-function recalcular() { /* valores calculados en calcular() */ }
+
+function recalcular() {}
 
 function calcular() {
-    const v = getValues();
+    const v    = getValues();
     const wrap = document.getElementById('resultado-wrap');
     const card = document.getElementById('resultado-card');
+    const t    = T[lang];
     wrap.style.display = 'block';
 
     if (v.dp <= 0) {
         card.className = 'result-card no-califica';
         card.innerHTML = `
-            <p class="result-label">Down payment</p>
-            <p class="result-no">Ingresa tu down payment</p>
-            <p class="result-no-sub">Escribe el monto disponible arriba para ver tu aprobación.</p>`;
+            <p class="result-label">${t.dp_label}</p>
+            <p class="result-no">${t.err_no_dp}</p>
+            <p class="result-no-sub" style="margin-top:6px;">${t.err_no_dp_sub}</p>`;
         wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
@@ -598,45 +618,52 @@ function calcular() {
         const falta = v.downMin - v.dp;
         card.className = 'result-card no-califica';
         card.innerHTML = `
-            <p class="result-label">Down payment insuficiente</p>
-            <p class="result-no">Mínimo requerido: ${fmtInt(v.downMin)}</p>
-            <p class="result-no-sub" style="margin-top:6px;">Necesitas ${fmt(falta)} adicionales para calificar para este trailer.</p>`;
+            <p class="result-label">${t.err_low_dp}</p>
+            <p class="result-no">${t.err_minimum}: ${fmtInt(v.downMin)}</p>
+            <p class="result-no-sub" style="margin-top:6px;">${t.err_need.replace('{amount}', fmt(falta))}</p>`;
         wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
 
-    const warningHtml = v.downAdicional > 0 ? `
-        <div class="result-warning">
-            ⚠️ Para cubrir el total del trailer se requieren
-            <strong>${fmt(v.downAdicional)}</strong> adicionales de down payment
-            (total: <strong>${fmt(v.dp + v.downAdicional)}</strong>).
-        </div>` : '';
+    const warningHtml = v.downAdicional > 0
+        ? `<div class="result-warning">${t.warn_add
+            .replace('{amount}', fmt(v.downAdicional))
+            .replace('{total}', fmt(v.dp + v.downAdicional))}</div>`
+        : '';
 
     card.className = 'result-card';
     card.innerHTML = `
-        <p class="result-label">Monto aprobado para financiar</p>
+        <p class="result-label">${t.result_label}</p>
         <p class="result-amount">${fmtInt(v.montoAprobado)}</p>
         <p class="result-payment">
-            ${v.mensual ? `<strong>${fmt(v.mensual)}/mes</strong> · 36 meses` : 'Consultar pago'}
+            ${v.mensual ? `<strong>${fmt(v.mensual)}/${t.result_payment.split(' ')[0] === 'monthly' ? 'mo' : 'mes'}</strong> · ${t.result_months}` : 'Consultar'}
         </p>
         ${warningHtml}
-        <a href="/precalifica" class="btn-apply">Quiero aplicar ahora &nbsp;→</a>
-        <p style="font-size:0.72rem; color:rgba(255,255,255,0.35); margin-top:20px;">
-            Sin revisión de historial de crédito · CookingBox Food Trailers
-        </p>`;
+        <a href="/precalifica" class="btn-apply">${t.btn_apply}</a>
+        <p style="font-size:0.72rem; color:rgba(255,255,255,0.35); margin-top:20px;">${t.result_footer}</p>`;
 
-    // llenar doc oculto para JPEG
     llenarDocJpeg(v);
     wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function llenarDocJpeg(v) {
+    const t = T[lang];
     const hoodChecked = document.querySelector('input[name="hood_idx"]:checked');
     const hoodIdx = hoodChecked ? parseInt(hoodChecked.value) : 0;
+
+    document.getElementById('jpeg-titulo').textContent      = t.jpeg_titulo;
+    document.getElementById('jpeg-col-concepto').textContent = t.jpeg_concepto;
+    document.getElementById('jpeg-col-monto').textContent    = t.jpeg_monto;
+    document.getElementById('jpeg-lbl-total').textContent    = t.jpeg_total;
+    document.getElementById('jpeg-lbl-dp').textContent       = t.jpeg_dp;
+    document.getElementById('jpeg-lbl-aprobado').textContent = t.jpeg_aprobado;
+    document.getElementById('jpeg-lbl-mensual').textContent  = t.jpeg_mensual;
+    document.getElementById('jpeg-footer').textContent       = t.jpeg_footer;
+
     document.getElementById('jpeg-trailer-nombre').textContent = trailerModelos[v.idx];
     document.getElementById('jpeg-trailer-precio').textContent = fmt(v.trailerPrecio);
-    document.getElementById('jpeg-hood-nombre').textContent = hoodNombres[hoodIdx];
-    document.getElementById('jpeg-hood-precio').textContent = fmt(v.hoodPrecio);
+    document.getElementById('jpeg-hood-nombre').textContent    = hoodNombres[hoodIdx];
+    document.getElementById('jpeg-hood-precio').textContent    = fmt(v.hoodPrecio);
 
     let eqHtml = '';
     document.querySelectorAll('.eq-check').forEach(cb => {
@@ -646,12 +673,6 @@ function llenarDocJpeg(v) {
                 <td style="padding:6px 10px;">${lbl ? lbl.textContent : ''}</td>
                 <td style="padding:6px 10px; text-align:right;">${fmt(parseFloat(cb.dataset.precio))}</td></tr>`;
         }
-    });
-    document.querySelectorAll('.eq-siempre').forEach(el => {
-        const id = el.id.replace('eq_siempre_', 'eq_');
-        eqHtml += `<tr style="border-bottom:1px solid #eee;">
-            <td style="padding:6px 10px;">Fire Suppression System</td>
-            <td style="padding:6px 10px; text-align:right;">${fmt(parseFloat(el.dataset.precio))}</td></tr>`;
     });
     document.getElementById('jpeg-equipos').innerHTML = eqHtml;
 
@@ -666,10 +687,10 @@ function llenarDocJpeg(v) {
     });
     document.getElementById('jpeg-extras').innerHTML = extHtml;
 
-    document.getElementById('jpeg-valor').textContent   = fmt(v.valorVenta);
-    document.getElementById('jpeg-dp').textContent      = '— ' + fmt(v.dp);
+    document.getElementById('jpeg-valor').textContent    = fmt(v.valorVenta);
+    document.getElementById('jpeg-dp').textContent       = '— ' + fmt(v.dp);
     document.getElementById('jpeg-aprobado').textContent = fmt(v.montoAprobado);
-    document.getElementById('jpeg-mensual').textContent  = v.mensual ? fmt(v.mensual) + '/mes' : 'Consultar';
+    document.getElementById('jpeg-mensual').textContent  = v.mensual ? fmt(v.mensual) + '/mo' : 'Consultar';
 }
 
 function descargarJPEG() {
