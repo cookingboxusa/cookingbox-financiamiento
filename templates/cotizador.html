@@ -391,6 +391,26 @@
         </div>
     </div>
 
+    <!-- Refrigeración -->
+    <div class="card">
+        <p class="card-label">Refrigeración</p>
+        <p style="font-size:0.82rem; color:#6e6e73; margin-bottom:14px;">
+            Elige el sistema de refrigeración que mejor se adapte a tu menú.
+        </p>
+        <div class="pills">
+            {% for i, eq in enumerate(cfg.equipos) %}
+            {% if eq.get('categoria') == 'refrigeracion' %}
+            <div class="pill-item">
+                <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
+                       class="eq-check"
+                       onchange="recalcular()">
+                <label for="eq_{{ i }}">{{ eq.nombre }}</label>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
     <!-- Extras (dinámicos por trailer, hidden) -->
     <div id="extras-container"></div>
 
