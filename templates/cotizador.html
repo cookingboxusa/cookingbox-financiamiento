@@ -345,19 +345,44 @@
         </div>
     </div>
 
-    <!-- Equipos -->
+    <!-- Equipos incluidos en el trailer -->
     <div class="card">
-        <p class="card-label" style="margin-bottom:16px;">Equipos instalados</p>
+        <p class="card-label">Ya incluido en tu trailer</p>
+        <p style="font-size:0.82rem; color:#6e6e73; margin-bottom:14px;">
+            Estos equipos vienen de fábrica con el trailer.
+        </p>
         <div class="pills">
             {% for i, eq in enumerate(cfg.equipos) %}
-            {% if eq.get('siempre') %}
-            <span class="pill-always">{{ eq.nombre }}</span>
-            <input type="hidden" id="eq_siempre_{{ i }}" data-precio="{{ eq.precio }}" class="eq-siempre">
-            {% else %}
+            {% if eq.get('categoria') == 'incluido' %}
+                {% if eq.get('siempre') %}
+                <span class="pill-always">{{ eq.nombre }}</span>
+                <input type="hidden" id="eq_siempre_{{ i }}" data-precio="{{ eq.precio }}" class="eq-siempre">
+                {% else %}
+                <div class="pill-item">
+                    <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
+                           class="eq-check"
+                           {% if eq.get('default') %}checked{% endif %}
+                           onchange="recalcular()">
+                    <label for="eq_{{ i }}">{{ eq.nombre }}</label>
+                </div>
+                {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Equipo de cocina -->
+    <div class="card">
+        <p class="card-label">Equipo de cocina</p>
+        <p style="font-size:0.82rem; color:#6e6e73; margin-bottom:14px;">
+            Selecciona los equipos de cocina que necesitas para tu negocio.
+        </p>
+        <div class="pills">
+            {% for i, eq in enumerate(cfg.equipos) %}
+            {% if eq.get('categoria') == 'cocina' %}
             <div class="pill-item">
                 <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
                        class="eq-check"
-                       {% if eq.get('default') %}checked{% endif %}
                        onchange="recalcular()">
                 <label for="eq_{{ i }}">{{ eq.nombre }}</label>
             </div>
