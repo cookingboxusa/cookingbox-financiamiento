@@ -315,8 +315,8 @@
         <p class="card-label">Down Payment disponible</p>
         <div class="dp-wrap">
             <span class="dp-symbol">$</span>
-            <input type="number" id="down_payment" min="0" step="0.01"
-                   placeholder="0" oninput="onDpChange()">
+            <input type="text" id="down_payment" inputmode="numeric"
+                   placeholder="0" oninput="formatearDP(this)">
         </div>
         <p class="dp-hint">Monto inicial que puedes aportar</p>
     </div>
@@ -498,7 +498,7 @@ function pagoMensual(monto) {
 }
 
 function getValues() {
-    const dp          = parseFloat(document.getElementById('down_payment').value) || 0;
+    const dp          = getDpValue();
     const idx         = parseInt(document.getElementById('trailer_idx').value) || 0;
     const trailerPrecio = trailerPrecios[idx];
     const downMin     = trailerDownMin[idx] || 0;
@@ -537,7 +537,20 @@ function getValues() {
              montoBruto, montoAprobado, downAdicional, mensual };
 }
 
-function onDpChange() { /* nothing live, wait for button */ }
+function formatearDP(input) {
+    // Quitar todo excepto dígitos y punto
+    let raw = input.value.replace(/[^0-9.]/g, '');
+    // Solo un punto decimal
+    const partes = raw.split('.');
+    if (partes.length > 2) raw = partes[0] + '.' + partes.slice(1).join('');
+    // Formatear parte entera con comas
+    const entero = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    input.value = partes.length === 2 ? entero + '.' + partes[1] : entero;
+}
+
+function getDpValue() {
+    return parseFloat(document.getElementById('down_payment').value.replace(/,/g, '')) || 0;
+}
 function onTrailerChange() {
     const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
     const extras = trailerExtras[idx] || [];
