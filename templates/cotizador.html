@@ -250,9 +250,9 @@
             </tr>
             {% endif %}
             <tr style="background:#1e8449; color:white; font-size:1.15rem;">
-                <td style="padding:12px;"><strong>PAGO SEMANAL — CONTRATO 3 AÑOS</strong></td>
+                <td style="padding:12px;"><strong>PAGO MENSUAL — 36 MESES</strong></td>
                 <td style="padding:12px; text-align:right;">
-                    <strong>{% if resultado.pago_semanal %}${{ '{:,.2f}'.format(resultado.pago_semanal) }}/semana{% else %}Consultar{% endif %}</strong>
+                    <strong>{% if resultado.pago_mensual %}${{ '{:,.2f}'.format(resultado.pago_mensual) }}/mes{% else %}Consultar{% endif %}</strong>
                 </td>
             </tr>
         </table>
@@ -280,6 +280,11 @@ function pagoSemanal(monto) {
     if (monto < 11000) return null;
     if (monto > 25000) monto = 25000;
     return Math.round((190 + ((monto - 11000) / 250) * 3.67) * 100) / 100;
+}
+function pagoMensual(monto) {
+    const semanal = pagoSemanal(monto);
+    if (!semanal) return null;
+    return Math.round(semanal * (52 / 12) * 100) / 100;
 }
 
 function fmt(n) {
@@ -344,7 +349,7 @@ function calcularVivo() {
     const montoAprobado   = Math.min(montoBruto, MONTO_MAX);
     const downAdicional   = Math.max(0, montoBruto - MONTO_MAX);
     const califica        = dp >= downMin;
-    const pago            = montoAprobado > 0 ? pagoSemanal(montoAprobado) : null;
+    const pago            = montoAprobado > 0 ? pagoMensual(montoAprobado) : null;
     const box             = document.getElementById('live-aprobacion');
 
     if (dp <= 0) { box.innerHTML = ''; return; }
@@ -366,7 +371,7 @@ function calcularVivo() {
                 ${totalExtras > 0 ? `(incluye extras ${fmt(totalExtras)})` : ''}
                 — Down payment ${fmt(dp)}
             </p>
-            ${pago ? `<div class="pago">Pago semanal (3 años): ${fmt(pago)}/semana</div>` : ''}
+            ${pago ? `<div class="pago">Pago mensual (36 meses): ${fmt(pago)}/mes</div>` : ''}
             ${capMsg}
         </div>`;
     } else if (!califica) {

@@ -401,13 +401,18 @@ def precios():
 
 
 def calcular_pago_semanal(monto_financiado):
-    """Pago semanal a 3 años (156 semanas) basado en tabla RTO."""
     if monto_financiado < 11000:
         return None
     if monto_financiado > 25000:
         monto_financiado = 25000
     pago = 190 + ((monto_financiado - 11000) / 250) * 3.67
     return round(pago, 2)
+
+def calcular_pago_mensual(monto_financiado):
+    semanal = calcular_pago_semanal(monto_financiado)
+    if semanal is None:
+        return None
+    return round(semanal * 52 / 12, 2)
 
 
 @app.route("/cotizador", methods=["GET", "POST"])
@@ -456,6 +461,7 @@ def cotizador():
         monto_financiado = min(monto_bruto, MONTO_MAX)
         down_adicional = max(0, monto_bruto - MONTO_MAX)
         pago_semanal = calcular_pago_semanal(monto_financiado)
+        pago_mensual = calcular_pago_mensual(monto_financiado)
 
         resultado = {
             "trailer": trailer,
@@ -474,6 +480,7 @@ def cotizador():
             "monto_financiado": monto_financiado,
             "down_adicional": down_adicional,
             "pago_semanal": pago_semanal,
+            "pago_mensual": pago_mensual,
         }
 
     return render_template("cotizador.html", cfg=cfg, resultado=resultado, form=form)
