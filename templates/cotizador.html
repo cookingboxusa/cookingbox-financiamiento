@@ -379,13 +379,15 @@
         </p>
         <div class="pills">
             {% for i, eq in enumerate(cfg.equipos) %}
-            {% if eq.get('categoria') == 'cocina' %}
+            {% if eq.get('categoria') == 'cocina' and not eq.get('oculto') %}
             <div class="pill-item">
                 <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
                        class="eq-check"
                        onchange="recalcular()">
                 <label for="eq_{{ i }}">{{ eq.nombre }}</label>
             </div>
+            {% elif eq.get('oculto') and not eq.get('siempre') %}
+            <input type="hidden" class="eq-oculto" data-precio="{{ eq.precio }}">
             {% endif %}
             {% endfor %}
         </div>
@@ -512,6 +514,9 @@ function getValues() {
         if (cb.checked) totalEquipos += parseFloat(cb.dataset.precio) || 0;
     });
     document.querySelectorAll('.eq-siempre').forEach(el => {
+        totalEquipos += parseFloat(el.dataset.precio) || 0;
+    });
+    document.querySelectorAll('.eq-oculto').forEach(el => {
         totalEquipos += parseFloat(el.dataset.precio) || 0;
     });
 
