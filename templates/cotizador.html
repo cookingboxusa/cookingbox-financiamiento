@@ -3,440 +3,617 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Simulador de Financiamiento - CookingBox</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Simulador de Financiamiento — CookingBox</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        .aprobado-box {
-            background: linear-gradient(135deg, #1e8449, #27ae60);
-            color: white;
-            border-radius: 14px;
-            padding: 24px;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            min-height: 100vh;
+            padding: 0 0 60px;
+        }
+
+        /* ── Header ── */
+        .hero {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 32px 24px 28px;
             text-align: center;
-            margin-bottom: 16px;
         }
-        .aprobado-box .monto {
-            font-size: 2.4rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            margin: 8px 0 4px;
+        .hero .brand {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #c0392b;
+            margin-bottom: 8px;
         }
-        .aprobado-box .pago {
-            font-size: 1.3rem;
+        .hero h1 {
+            font-size: 2rem;
             font-weight: 700;
-            margin: 6px 0 0;
-            background: rgba(255,255,255,0.2);
-            border-radius: 8px;
-            padding: 8px 16px;
-            display: inline-block;
+            letter-spacing: -0.5px;
+            color: #1d1d1f;
+            margin-bottom: 6px;
         }
-        .aprobado-box .label {
-            font-size: 0.85rem;
-            opacity: 0.85;
-            margin: 0;
+        .hero p {
+            font-size: 0.95rem;
+            color: #6e6e73;
         }
-        .no-aprobado-box {
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
-            color: white;
+
+        /* ── Container ── */
+        .wrap {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px 24px;
+            margin-top: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .card-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #6e6e73;
+            margin-bottom: 14px;
+        }
+
+        /* ── Down payment input ── */
+        .dp-wrap {
+            display: flex;
+            align-items: center;
+            border: 1.5px solid #d2d2d7;
             border-radius: 14px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 16px;
+            padding: 0 18px;
+            transition: border-color 0.15s;
         }
-        .trailer-row-ok  { background: #eafaf1; }
-        .trailer-row-no  { background: #fdfdfd; color: #bbb; }
-        .live-result { transition: all 0.2s ease; }
+        .dp-wrap:focus-within { border-color: #c0392b; }
+        .dp-symbol {
+            font-size: 1.4rem;
+            font-weight: 300;
+            color: #6e6e73;
+            margin-right: 6px;
+        }
+        #down_payment {
+            border: none;
+            outline: none;
+            font-size: 2rem;
+            font-weight: 300;
+            color: #1d1d1f;
+            width: 100%;
+            padding: 16px 0;
+            background: transparent;
+            -moz-appearance: textfield;
+        }
+        #down_payment::-webkit-outer-spin-button,
+        #down_payment::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .dp-hint {
+            font-size: 0.8rem;
+            color: #aeaeb2;
+            margin-top: 8px;
+        }
+
+        /* ── Select trailer ── */
+        .clean-select {
+            width: 100%;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            color: #1d1d1f;
+            background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aeaeb2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 18px center;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            font-family: inherit;
+        }
+        .clean-select:focus { border-color: #c0392b; }
+
+        /* ── Segmented control (Hood) ── */
+        .segment-group {
+            display: flex;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .segment-group input[type="radio"] { display: none; }
+        .segment-group label {
+            flex: 1;
+            text-align: center;
+            padding: 13px 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6e6e73;
+            cursor: pointer;
+            border-right: 1.5px solid #d2d2d7;
+            transition: all 0.15s;
+            background: white;
+        }
+        .segment-group label:last-child { border-right: none; }
+        .segment-group input[type="radio"]:checked + label {
+            background: #1d1d1f;
+            color: white;
+        }
+
+        /* ── Equipment pills ── */
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .pill-item input[type="checkbox"] { display: none; }
+        .pill-item label {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #3a3a3c;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            background: white;
+        }
+        .pill-item input[type="checkbox"]:checked + label {
+            background: #1d1d1f;
+            color: white;
+            border-color: #1d1d1f;
+        }
+        .pill-always {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background: #f0f0f0;
+            color: #6e6e73;
+            border: 1.5px solid #e5e5ea;
+        }
+
+        /* ── Qty inputs hidden (we keep qty=1 always) ── */
+
+        /* ── Calculate button ── */
+        .btn-calc {
+            display: block;
+            width: 100%;
+            margin-top: 24px;
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 18px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .btn-calc:active { opacity: 0.85; transform: scale(0.99); }
+
+        /* ── Result card ── */
+        #resultado-wrap {
+            display: none;
+            margin-top: 20px;
+        }
+        .result-card {
+            background: #1d1d1f;
+            border-radius: 24px;
+            padding: 40px 28px 32px;
+            text-align: center;
+            color: white;
+        }
+        .result-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 12px;
+        }
+        .result-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .result-payment {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 28px;
+        }
+        .result-payment strong {
+            color: white;
+        }
+
+        /* down adicional warning */
+        .result-warning {
+            background: rgba(255,204,0,0.12);
+            border: 1px solid rgba(255,204,0,0.3);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 0.85rem;
+            color: #ffd60a;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        /* no califica */
+        .result-card.no-califica { background: #3a3a3c; }
+        .result-no {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .result-no-sub {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.55);
+        }
+
+        /* CTA dentro del resultado */
+        .btn-apply {
+            display: inline-block;
+            background: white;
+            color: #1d1d1f;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            letter-spacing: 0.2px;
+            transition: opacity 0.15s;
+        }
+        .btn-apply:hover { opacity: 0.88; }
+
+        /* Nav link */
+        .nav-back {
+            display: block;
+            text-align: center;
+            margin-top: 28px;
+            font-size: 0.85rem;
+            color: #aeaeb2;
+            text-decoration: none;
+        }
+        .nav-back:hover { color: #6e6e73; }
+
+        /* hidden jpeg doc */
+        #doc-jpeg {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            background: white;
+            padding: 30px;
+            width: 680px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
-<div class="container" style="max-width:780px;">
+
+<div class="hero">
+    <p class="brand">CookingBox Food Trailers</p>
     <h1>Simulador de Financiamiento</h1>
-    <p style="text-align:center; color:#666; margin:-12px 0 16px; font-size:0.9rem;">CookingBox Food Trailers — Sin revisión de crédito</p>
+    <p>Sin revisión de historial de crédito</p>
+</div>
 
-    <form method="POST" id="cotizadorForm">
+<div class="wrap">
 
-        {# ── 1. Down payment — va primero para mostrar aprobación inmediata ── #}
-        <div class="card">
-            <h2>Down Payment del cliente</h2>
-            <label for="down_payment">¿Cuánto tiene disponible para el down payment? (USD)</label>
-            <input type="number" step="0.01" min="0" id="down_payment" name="down_payment"
-                   value="{{ form.get('down_payment','') }}" required
-                   oninput="calcularVivo()" placeholder="Ej: 7500">
+    <!-- Down payment -->
+    <div class="card">
+        <p class="card-label">Down Payment disponible</p>
+        <div class="dp-wrap">
+            <span class="dp-symbol">$</span>
+            <input type="number" id="down_payment" min="0" step="0.01"
+                   placeholder="0" oninput="onDpChange()">
         </div>
+        <p class="dp-hint">Monto inicial que puedes aportar</p>
+    </div>
 
-        {# ── Resultado en vivo de aprobación ── #}
-        <div id="live-aprobacion"></div>
+    <!-- Trailer -->
+    <div class="card">
+        <p class="card-label">Tamaño del trailer</p>
+        <select class="clean-select" id="trailer_idx" onchange="onTrailerChange()">
+            {% for i, t in enumerate(cfg.trailers) %}
+            <option value="{{ i }}" data-precio="{{ t.precio }}">{{ t.modelo }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-        {# ── 2. Datos del cliente ── #}
-        <div class="card">
-            <h2>Datos del Cliente</h2>
-            <label>Nombre del cliente</label>
-            <input type="text" name="cliente_nombre" value="{{ form.get('cliente_nombre','') }}">
-            <label>Teléfono</label>
-            <input type="text" name="cliente_telefono" value="{{ form.get('cliente_telefono','') }}">
+    <!-- Hood -->
+    <div class="card">
+        <p class="card-label">Tamaño del Hood</p>
+        <div class="segment-group">
+            {% for i, h in enumerate(cfg.hood_opciones) %}
+            <input type="radio" name="hood_idx" id="hood_{{ i }}"
+                   value="{{ i }}" data-precio="{{ h.precio }}"
+                   {% if h.get('default') %}checked{% endif %}
+                   onchange="recalcular()">
+            <label for="hood_{{ i }}">{{ h.nombre }}</label>
+            {% endfor %}
         </div>
+    </div>
 
-        {# ── 3. Trailer y color ── #}
-        <div class="card">
-            <h2>Trailer seleccionado</h2>
-            <label>Modelo</label>
-            <select name="trailer_idx" id="trailer_idx" required onchange="actualizarExtras(); calcularVivo();">
-                {% for i, t in enumerate(cfg.trailers) %}
-                <option value="{{ i }}"
-                    data-precio="{{ t.precio }}"
-                    data-extras="{{ t.get('extras', []) | tojson | e }}"
-                    {% if form.get('trailer_idx','0')|int == i %}selected{% endif %}>
-                    {{ t.modelo }} — ${{ '{:,.0f}'.format(t.precio) }}
-                </option>
-                {% endfor %}
-            </select>
-            <label>Color</label>
-            <input type="text" name="color" value="{{ form.get('color','') }}" placeholder="Ej: BLACK, WHITE, RED...">
-
-            {# Extras dinámicos por trailer #}
-            <div id="extras-trailer" style="margin-top:14px; display:none;">
-                <h3 style="margin-bottom:8px;">Extras disponibles para este trailer</h3>
-                <div id="extras-lista"></div>
+    <!-- Equipos -->
+    <div class="card">
+        <p class="card-label" style="margin-bottom:16px;">Equipos instalados</p>
+        <div class="pills">
+            {% for i, eq in enumerate(cfg.equipos) %}
+            {% if eq.get('siempre') %}
+            <span class="pill-always">{{ eq.nombre }}</span>
+            <input type="hidden" id="eq_siempre_{{ i }}" data-precio="{{ eq.precio }}" class="eq-siempre">
+            {% else %}
+            <div class="pill-item">
+                <input type="checkbox" id="eq_{{ i }}" data-precio="{{ eq.precio }}"
+                       class="eq-check"
+                       {% if eq.get('default') %}checked{% endif %}
+                       onchange="recalcular()">
+                <label for="eq_{{ i }}">{{ eq.nombre }}</label>
             </div>
-        </div>
-
-        {# ── 4. Hood (selección única) ── #}
-        <div class="card">
-            <h2>Hood (selecciona un tamaño)</h2>
-            <table>
-                <tr><th>Seleccionar</th><th>Tamaño</th><th>Precio</th></tr>
-                {% for i, h in enumerate(cfg.hood_opciones) %}
-                <tr>
-                    <td>
-                        <input type="radio" name="hood_idx" value="{{ i }}"
-                            class="hood-radio" data-precio="{{ h.precio }}"
-                            {% if form and form.get('hood_idx','') == i|string %}checked
-                            {% elif not form and h.get('default') %}checked
-                            {% endif %}
-                            onchange="calcularVivo()">
-                    </td>
-                    <td>{{ h.nombre }}</td>
-                    <td>${{ '{:,.0f}'.format(h.precio) }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-
-        {# ── 5. Equipos instalados ── #}
-        <div class="card">
-            <h2>Equipos instalados</h2>
-            <table>
-                <tr><th>Incluir</th><th>Equipo</th><th>Precio</th><th>Qty</th></tr>
-                {% for i, eq in enumerate(cfg.equipos) %}
-                {% if eq.get('siempre') %}
-                <tr style="background:#eafaf1;">
-                    <td style="text-align:center;">✅</td>
-                    <td><strong>{{ eq.nombre }}</strong> <span style="font-size:0.75rem; color:#888;">(siempre incluido)</span></td>
-                    <td>${{ '{:,.0f}'.format(eq.precio) }}</td>
-                    <td>
-                        <input type="hidden" name="equipo_{{ i }}" value="on">
-                        <input type="hidden" name="qty_{{ i }}" value="1">
-                        <span class="eq-siempre" data-precio="{{ eq.precio }}" style="color:#888;">1</span>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td>
-                        <input type="checkbox" name="equipo_{{ i }}" class="eq-check"
-                            data-precio="{{ eq.precio }}"
-                            {% if form and form.get('equipo_'+i|string) %}checked
-                            {% elif not form and eq.get('default') %}checked
-                            {% endif %}
-                            onchange="calcularVivo()">
-                    </td>
-                    <td>{{ eq.nombre }}</td>
-                    <td>${{ '{:,.0f}'.format(eq.precio) }}</td>
-                    <td>
-                        <input type="number" name="qty_{{ i }}" class="eq-qty"
-                               value="{{ form.get('qty_'+i|string, '1') }}"
-                               min="1" max="10" style="width:60px"
-                               oninput="calcularVivo()">
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-            </table>
-        </div>
-
-        <button type="submit">Ver resultado del simulador</button>
-    </form>
-
-    {# ── Resultado del simulador (solo si POST) ── #}
-    {% if resultado %}
-    <hr class="divider">
-    <div id="documento-cotizacion" style="background:white; padding:30px; border-radius:12px; margin-top:8px; font-family:Arial,sans-serif; max-width:700px;">
-
-        <div style="text-align:center; margin-bottom:18px;">
-            <h2 style="color:#c0392b; font-size:1.4rem; margin:0;">COOKINGBOX FOOD TRAILERS</h2>
-            <p style="margin:4px 0; font-size:0.88rem; color:#555;">Pharr, TX | cookingboxusa.com</p>
-            <h3 style="margin:8px 0 0; font-size:1rem;">SIMULADOR DE FINANCIAMIENTO — SIN REVISIÓN DE CRÉDITO</h3>
-        </div>
-
-        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:12px;">
-            <tr style="background:#f5f5f5;">
-                <td style="padding:6px; border:1px solid #ddd; width:50%;"><strong>Cliente:</strong> {{ resultado.cliente_nombre }}</td>
-                <td style="padding:6px; border:1px solid #ddd;"><strong>Tel:</strong> {{ resultado.cliente_telefono }}</td>
-            </tr>
-        </table>
-
-        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:12px;">
-            <tr style="background:#c0392b; color:white;">
-                <th style="padding:7px; text-align:left;">TRAILER BASE</th>
-                <th style="padding:7px; text-align:right;">PRECIO</th>
-            </tr>
-            <tr>
-                <td style="padding:7px; border:1px solid #ddd;">{{ resultado.trailer.descripcion }} — Color: {{ resultado.color }}</td>
-                <td style="padding:7px; border:1px solid #ddd; text-align:right;">${{ '{:,.2f}'.format(resultado.precio_trailer) }}</td>
-            </tr>
-        </table>
-
-        <table style="width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:12px;">
-            <tr style="background:#c0392b; color:white;">
-                <th style="padding:7px; text-align:left;">EQUIPOS INSTALADOS</th>
-                <th style="padding:7px; text-align:center; width:50px;">QTY</th>
-                <th style="padding:7px; text-align:right; width:100px;">SUBTOTAL</th>
-            </tr>
-            {% if resultado.hood_sel %}
-            <tr>
-                <td style="padding:6px; border:1px solid #eee;">{{ resultado.hood_sel.nombre }}</td>
-                <td style="padding:6px; border:1px solid #eee; text-align:center;">1</td>
-                <td style="padding:6px; border:1px solid #eee; text-align:right;">${{ '{:,.2f}'.format(resultado.hood_sel.precio) }}</td>
-            </tr>
             {% endif %}
-            {% for eq in resultado.equipos_sel %}
-            <tr>
-                <td style="padding:6px; border:1px solid #eee;">{{ eq.nombre }}</td>
-                <td style="padding:6px; border:1px solid #eee; text-align:center;">{{ eq.qty }}</td>
-                <td style="padding:6px; border:1px solid #eee; text-align:right;">${{ '{:,.2f}'.format(eq.subtotal) }}</td>
-            </tr>
             {% endfor %}
-            {% if resultado.extras_sel %}
-            {% for ex in resultado.extras_sel %}
-            <tr>
-                <td style="padding:6px; border:1px solid #eee;">{{ ex.nombre }}</td>
-                <td style="padding:6px; border:1px solid #eee; text-align:center;">1</td>
-                <td style="padding:6px; border:1px solid #eee; text-align:right;">${{ '{:,.2f}'.format(ex.precio) }}</td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-        </table>
-
-        <table style="width:100%; border-collapse:collapse; font-size:0.92rem;">
-            <tr style="background:#f9f9f9;">
-                <td style="padding:8px; border:1px solid #ddd;">Valor de venta total</td>
-                <td style="padding:8px; border:1px solid #ddd; text-align:right;">${{ '{:,.2f}'.format(resultado.valor_venta) }}</td>
-            </tr>
-            <tr>
-                <td style="padding:8px; border:1px solid #ddd;">Down payment inicial</td>
-                <td style="padding:8px; border:1px solid #ddd; text-align:right; color:#1e8449; font-weight:600;">— ${{ '{:,.2f}'.format(resultado.down_payment) }}</td>
-            </tr>
-            <tr style="font-weight:700;">
-                <td style="padding:8px; border:1px solid #ddd;">MONTO APROBADO PARA FINANCIAR</td>
-                <td style="padding:8px; border:1px solid #ddd; text-align:right; font-size:1.1rem;">${{ '{:,.2f}'.format(resultado.monto_financiado) }}</td>
-            </tr>
-            {% if resultado.down_adicional > 0 %}
-            <tr style="background:#fff3cd; color:#856404; font-weight:600;">
-                <td style="padding:8px; border:1px solid #ddd;">⚠️ Down payment adicional requerido</td>
-                <td style="padding:8px; border:1px solid #ddd; text-align:right;">${{ '{:,.2f}'.format(resultado.down_adicional) }}</td>
-            </tr>
-            <tr style="background:#fff3cd; color:#856404;">
-                <td style="padding:8px; border:1px solid #ddd;">Total down payment necesario</td>
-                <td style="padding:8px; border:1px solid #ddd; text-align:right;">${{ '{:,.2f}'.format(resultado.down_payment + resultado.down_adicional) }}</td>
-            </tr>
-            {% endif %}
-            <tr style="background:#1e8449; color:white; font-size:1.15rem;">
-                <td style="padding:12px;"><strong>PAGO MENSUAL — 36 MESES</strong></td>
-                <td style="padding:12px; text-align:right;">
-                    <strong>{% if resultado.pago_mensual %}${{ '{:,.2f}'.format(resultado.pago_mensual) }}/mes{% else %}Consultar{% endif %}</strong>
-                </td>
-            </tr>
-        </table>
-
-        <p style="font-size:0.72rem; color:#aaa; text-align:center; margin-top:12px;">
-            Somos CookingBox Food Trailers — Sin revisión de historial de crédito
-        </p>
+        </div>
     </div>
-    <button type="button" onclick="descargarJPEG()" style="margin-top:10px; background:#1e8449;">
-        Descargar simulación como JPEG
-    </button>
 
-    {# ── CTA: Quiero aplicar ── #}
-    <div style="
-        background: linear-gradient(135deg, #1a1a2e 0%, #c0392b 100%);
-        border-radius: 16px;
-        padding: 32px 24px;
-        text-align: center;
-        margin-top: 24px;
-        color: white;
-    ">
-        <p style="font-size:0.85rem; letter-spacing:2px; text-transform:uppercase; opacity:0.75; margin:0 0 8px;">¿Te convencieron los números?</p>
-        <h2 style="font-size:1.8rem; font-weight:900; margin:0 0 10px; line-height:1.2;">
-            Tu food trailer te está esperando
-        </h2>
-        <p style="font-size:1rem; opacity:0.88; margin:0 0 24px; max-width:440px; margin-left:auto; margin-right:auto;">
-            Sin revisión de crédito. Sin complicaciones.<br>
-            Da el siguiente paso — aplica hoy y empieza a construir tu negocio.
-        </p>
-        <a href="{{ url_for('precalifica') }}" style="
-            display: inline-block;
-            background: white;
-            color: #c0392b;
-            font-weight: 800;
-            font-size: 1.1rem;
-            padding: 14px 36px;
-            border-radius: 50px;
-            text-decoration: none;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            transition: transform 0.15s;
-        " onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
-            Quiero aplicar ahora →
-        </a>
-        <p style="font-size:0.75rem; opacity:0.55; margin:16px 0 0;">
-            CookingBox Food Trailers · Pharr, TX · cookingboxusa.com
-        </p>
+    <!-- Extras (dinámicos por trailer, hidden) -->
+    <div id="extras-container"></div>
+
+    <!-- Botón calcular -->
+    <button class="btn-calc" onclick="calcular()">Calcular mi financiamiento</button>
+
+    <!-- Resultado -->
+    <div id="resultado-wrap">
+        <div id="resultado-card" class="result-card">
+            <!-- se llena con JS -->
+        </div>
     </div>
-    {% endif %}
 
-    <a class="nav-link" href="{{ url_for('index') }}">Panel principal</a>
+    <a href="{{ url_for('index') }}" class="nav-back">← Panel principal</a>
+</div>
+
+<!-- Documento oculto solo para JPEG (uso interno) -->
+<div id="doc-jpeg">
+    <div style="text-align:center; margin-bottom:18px;">
+        <div style="font-size:20px; font-weight:700; color:#c0392b;">COOKINGBOX FOOD TRAILERS</div>
+        <div style="font-size:12px; color:#555; margin-top:4px;">Pharr, TX · cookingboxusa.com</div>
+        <div style="font-size:13px; font-weight:600; margin-top:6px;">SIMULADOR DE FINANCIAMIENTO — SIN REVISIÓN DE CRÉDITO</div>
+    </div>
+    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <tr style="background:#1d1d1f; color:white;">
+            <td style="padding:8px 10px; font-weight:700; width:70%;">CONCEPTO</td>
+            <td style="padding:8px 10px; text-align:right; font-weight:700;">MONTO</td>
+        </tr>
+        <tr id="jpeg-trailer-row" style="border-bottom:1px solid #eee;">
+            <td style="padding:7px 10px;" id="jpeg-trailer-nombre"></td>
+            <td style="padding:7px 10px; text-align:right;" id="jpeg-trailer-precio"></td>
+        </tr>
+        <tr id="jpeg-hood-row" style="border-bottom:1px solid #eee;">
+            <td style="padding:7px 10px;" id="jpeg-hood-nombre"></td>
+            <td style="padding:7px 10px; text-align:right;" id="jpeg-hood-precio"></td>
+        </tr>
+        <tbody id="jpeg-equipos"></tbody>
+        <tbody id="jpeg-extras"></tbody>
+        <tr style="background:#f5f5f5; border-top:2px solid #ddd;">
+            <td style="padding:8px 10px; font-weight:600;">Valor total</td>
+            <td style="padding:8px 10px; text-align:right; font-weight:600;" id="jpeg-valor"></td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+            <td style="padding:8px 10px;">Down payment</td>
+            <td style="padding:8px 10px; text-align:right; color:#1e8449;" id="jpeg-dp"></td>
+        </tr>
+        <tr style="background:#1d1d1f; color:white;">
+            <td style="padding:10px 10px; font-weight:700; font-size:14px;">MONTO APROBADO PARA FINANCIAR</td>
+            <td style="padding:10px 10px; text-align:right; font-weight:700; font-size:14px;" id="jpeg-aprobado"></td>
+        </tr>
+        <tr style="background:#c0392b; color:white;">
+            <td style="padding:10px 10px; font-weight:700;">PAGO MENSUAL — 36 MESES</td>
+            <td style="padding:10px 10px; text-align:right; font-weight:700;" id="jpeg-mensual"></td>
+        </tr>
+    </table>
+    <p style="font-size:10px; color:#aaa; text-align:center; margin-top:14px;">
+        CookingBox Food Trailers · Sin revisión de historial de crédito
+    </p>
 </div>
 
 <script>
-const MONTO_MAX = 21000;
-const trailerDownMin = [5250, 6250, 7500, 9000, 10500];
-const trailerPrecios = {{ cfg.trailers | map(attribute='precio') | list | tojson }};
-const trailerExtras  = {{ cfg.trailers | map(attribute='extras') | list | tojson }};
-const hoodPrecios    = {{ cfg.hood_opciones | map(attribute='precio') | list | tojson }};
-
-function pagoSemanal(monto) {
-    if (monto < 11000) return null;
-    if (monto > 25000) monto = 25000;
-    return Math.round((190 + ((monto - 11000) / 250) * 3.67) * 100) / 100;
-}
-function pagoMensual(monto) {
-    const semanal = pagoSemanal(monto);
-    if (!semanal) return null;
-    return Math.round(semanal * (52 / 12) * 100) / 100;
-}
+const MONTO_MAX   = 21000;
+const trailerDownMin  = [5250, 6250, 7500, 9000, 10500];
+const trailerPrecios  = {{ cfg.trailers | map(attribute='precio') | list | tojson }};
+const trailerModelos  = {{ cfg.trailers | map(attribute='modelo') | list | tojson }};
+const trailerExtras   = {{ cfg.trailers | map(attribute='extras') | list | tojson }};
+const hoodNombres     = {{ cfg.hood_opciones | map(attribute='nombre') | list | tojson }};
+const hoodPrecios     = {{ cfg.hood_opciones | map(attribute='precio') | list | tojson }};
 
 function fmt(n) {
     return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
-
-function actualizarExtras() {
-    const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
-    const extras = trailerExtras[idx] || [];
-    const contenedor = document.getElementById('extras-trailer');
-    const lista = document.getElementById('extras-lista');
-
-    if (!extras.length) {
-        contenedor.style.display = 'none';
-        lista.innerHTML = '';
-        return;
-    }
-
-    contenedor.style.display = 'block';
-    lista.innerHTML = extras.map((ex, i) => `
-        <label style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #eee; font-weight:normal; cursor:pointer;">
-            <input type="checkbox" name="trailer_extra_${i}" class="extra-check"
-                   data-precio="${ex.precio}" onchange="calcularVivo()"
-                   style="width:18px; height:18px; accent-color:#c0392b;">
-            <span>${ex.nombre}</span>
-            <span style="margin-left:auto; font-weight:700; color:#c0392b;">${fmt(ex.precio)}</span>
-        </label>
-    `).join('');
+function fmtInt(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
 }
 
-function calcularVivo() {
-    const dp = parseFloat(document.getElementById('down_payment').value) || 0;
-    const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
-    const trailerPrecio = trailerPrecios[idx] || 0;
-    const downMin = trailerDownMin[idx] || 0;
+function pagoSemanal(monto) {
+    if (monto < 11000) return null;
+    if (monto > 25000) monto = 25000;
+    return (190 + ((monto - 11000) / 250) * 3.67);
+}
+function pagoMensual(monto) {
+    const s = pagoSemanal(monto);
+    return s ? Math.round(s * 52 / 12 * 100) / 100 : null;
+}
 
-    // Hood seleccionado
-    const hoodRadio = document.querySelector('.hood-radio:checked');
-    const hoodPrecio = hoodRadio ? parseFloat(hoodRadio.dataset.precio) : 0;
+function getValues() {
+    const dp          = parseFloat(document.getElementById('down_payment').value) || 0;
+    const idx         = parseInt(document.getElementById('trailer_idx').value) || 0;
+    const trailerPrecio = trailerPrecios[idx];
+    const downMin     = trailerDownMin[idx] || 0;
 
-    // Equipos instalados
+    const hoodChecked = document.querySelector('input[name="hood_idx"]:checked');
+    const hoodIdx     = hoodChecked ? parseInt(hoodChecked.value) : 0;
+    const hoodPrecio  = hoodPrecios[hoodIdx] || 0;
+
     let totalEquipos = 0;
-    document.querySelectorAll('.eq-check').forEach((cb, i) => {
-        if (cb.checked) {
-            const qty = parseInt(document.querySelectorAll('.eq-qty')[i].value) || 1;
-            totalEquipos += parseFloat(cb.dataset.precio) * qty;
-        }
+    document.querySelectorAll('.eq-check').forEach(cb => {
+        if (cb.checked) totalEquipos += parseFloat(cb.dataset.precio) || 0;
     });
-    // Equipos siempre incluidos (Fire Suppression, etc.)
     document.querySelectorAll('.eq-siempre').forEach(el => {
         totalEquipos += parseFloat(el.dataset.precio) || 0;
     });
 
-    // Extras por trailer
     let totalExtras = 0;
     document.querySelectorAll('.extra-check').forEach(cb => {
-        if (cb.checked) totalExtras += parseFloat(cb.dataset.precio);
+        if (cb.checked) totalExtras += parseFloat(cb.dataset.precio) || 0;
     });
 
-    const valorVenta      = trailerPrecio + hoodPrecio + totalEquipos + totalExtras;
-    const montoBruto      = valorVenta - dp;
-    const montoAprobado   = Math.min(montoBruto, MONTO_MAX);
-    const downAdicional   = Math.max(0, montoBruto - MONTO_MAX);
-    const califica        = dp >= downMin;
-    const pago            = montoAprobado > 0 ? pagoMensual(montoAprobado) : null;
-    const box             = document.getElementById('live-aprobacion');
+    const valorVenta    = trailerPrecio + hoodPrecio + totalEquipos + totalExtras;
+    const montoBruto    = valorVenta - dp;
+    const montoAprobado = Math.min(Math.max(montoBruto, 0), MONTO_MAX);
+    const downAdicional = Math.max(0, montoBruto - MONTO_MAX);
+    const mensual       = pagoMensual(montoAprobado);
 
-    if (dp <= 0) { box.innerHTML = ''; return; }
-
-    if (califica && montoBruto > 0) {
-        const capMsg = downAdicional > 0
-            ? `<div style="background:rgba(0,0,0,0.18); border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.88rem;">
-                ⚠️ El total a financiar excede el máximo de ${fmt(MONTO_MAX)}.<br>
-                Se requiere un down payment adicional de <strong>${fmt(downAdicional)}</strong>
-                (total down: <strong>${fmt(dp + downAdicional)}</strong>).
-               </div>`
-            : '';
-        box.innerHTML = `
-        <div class="aprobado-box">
-            <p class="label">MONTO APROBADO PARA FINANCIAR</p>
-            <div class="monto">${fmt(montoAprobado)}</div>
-            <p class="label" style="margin-top:4px;">
-                Valor de venta ${fmt(valorVenta)}
-                ${totalExtras > 0 ? `(incluye extras ${fmt(totalExtras)})` : ''}
-                — Down payment ${fmt(dp)}
-            </p>
-            ${pago ? `<div class="pago">Pago mensual (36 meses): ${fmt(pago)}/mes</div>` : ''}
-            ${capMsg}
-        </div>`;
-    } else if (!califica) {
-        const falta = downMin - dp;
-        box.innerHTML = `
-        <div class="no-aprobado-box">
-            <p style="font-size:1rem; font-weight:700; margin:0 0 6px;">Down payment insuficiente para este trailer</p>
-            <p style="margin:0; font-size:0.9rem;">Mínimo requerido: ${fmt(downMin)} — Faltan: ${fmt(falta)}</p>
-        </div>`;
-    } else {
-        box.innerHTML = `
-        <div class="no-aprobado-box">
-            <p style="font-size:1rem; font-weight:700; margin:0;">El down payment cubre el total — sin balance a financiar</p>
-        </div>`;
-    }
+    return { dp, idx, trailerPrecio, downMin, hoodIdx, hoodPrecio,
+             totalEquipos, totalExtras, valorVenta,
+             montoBruto, montoAprobado, downAdicional, mensual };
 }
 
-window.onload = function() { actualizarExtras(); calcularVivo(); };
+function onDpChange() { /* nothing live, wait for button */ }
+function onTrailerChange() {
+    const idx = parseInt(document.getElementById('trailer_idx').value) || 0;
+    const extras = trailerExtras[idx] || [];
+    const cont = document.getElementById('extras-container');
+    if (!extras.length) { cont.innerHTML = ''; return; }
+    cont.innerHTML = `
+        <div class="card">
+            <p class="card-label">Extras disponibles</p>
+            <div class="pills">
+                ${extras.map((ex, i) => `
+                <div class="pill-item">
+                    <input type="checkbox" id="extra_${i}" class="extra-check"
+                           data-precio="${ex.precio}" onchange="recalcular()">
+                    <label for="extra_${i}">${ex.nombre}</label>
+                </div>`).join('')}
+            </div>
+        </div>`;
+}
+function recalcular() { /* valores calculados en calcular() */ }
+
+function calcular() {
+    const v = getValues();
+    const wrap = document.getElementById('resultado-wrap');
+    const card = document.getElementById('resultado-card');
+    wrap.style.display = 'block';
+
+    if (v.dp <= 0) {
+        card.className = 'result-card no-califica';
+        card.innerHTML = `
+            <p class="result-label">Down payment</p>
+            <p class="result-no">Ingresa tu down payment</p>
+            <p class="result-no-sub">Escribe el monto disponible arriba para ver tu aprobación.</p>`;
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+
+    if (v.dp < v.downMin) {
+        const falta = v.downMin - v.dp;
+        card.className = 'result-card no-califica';
+        card.innerHTML = `
+            <p class="result-label">Down payment insuficiente</p>
+            <p class="result-no">Mínimo requerido: ${fmtInt(v.downMin)}</p>
+            <p class="result-no-sub" style="margin-top:6px;">Necesitas ${fmt(falta)} adicionales para calificar para este trailer.</p>`;
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+
+    const warningHtml = v.downAdicional > 0 ? `
+        <div class="result-warning">
+            ⚠️ Para cubrir el total del trailer se requieren
+            <strong>${fmt(v.downAdicional)}</strong> adicionales de down payment
+            (total: <strong>${fmt(v.dp + v.downAdicional)}</strong>).
+        </div>` : '';
+
+    card.className = 'result-card';
+    card.innerHTML = `
+        <p class="result-label">Monto aprobado para financiar</p>
+        <p class="result-amount">${fmtInt(v.montoAprobado)}</p>
+        <p class="result-payment">
+            ${v.mensual ? `<strong>${fmt(v.mensual)}/mes</strong> · 36 meses` : 'Consultar pago'}
+        </p>
+        ${warningHtml}
+        <a href="/precalifica" class="btn-apply">Quiero aplicar ahora &nbsp;→</a>
+        <p style="font-size:0.72rem; color:rgba(255,255,255,0.35); margin-top:20px;">
+            Sin revisión de historial de crédito · CookingBox Food Trailers
+        </p>`;
+
+    // llenar doc oculto para JPEG
+    llenarDocJpeg(v);
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function llenarDocJpeg(v) {
+    const hoodChecked = document.querySelector('input[name="hood_idx"]:checked');
+    const hoodIdx = hoodChecked ? parseInt(hoodChecked.value) : 0;
+    document.getElementById('jpeg-trailer-nombre').textContent = trailerModelos[v.idx];
+    document.getElementById('jpeg-trailer-precio').textContent = fmt(v.trailerPrecio);
+    document.getElementById('jpeg-hood-nombre').textContent = hoodNombres[hoodIdx];
+    document.getElementById('jpeg-hood-precio').textContent = fmt(v.hoodPrecio);
+
+    let eqHtml = '';
+    document.querySelectorAll('.eq-check').forEach(cb => {
+        if (cb.checked) {
+            const lbl = document.querySelector(`label[for="${cb.id}"]`);
+            eqHtml += `<tr style="border-bottom:1px solid #eee;">
+                <td style="padding:6px 10px;">${lbl ? lbl.textContent : ''}</td>
+                <td style="padding:6px 10px; text-align:right;">${fmt(parseFloat(cb.dataset.precio))}</td></tr>`;
+        }
+    });
+    document.querySelectorAll('.eq-siempre').forEach(el => {
+        const id = el.id.replace('eq_siempre_', 'eq_');
+        eqHtml += `<tr style="border-bottom:1px solid #eee;">
+            <td style="padding:6px 10px;">Fire Suppression System</td>
+            <td style="padding:6px 10px; text-align:right;">${fmt(parseFloat(el.dataset.precio))}</td></tr>`;
+    });
+    document.getElementById('jpeg-equipos').innerHTML = eqHtml;
+
+    let extHtml = '';
+    document.querySelectorAll('.extra-check').forEach(cb => {
+        if (cb.checked) {
+            const lbl = document.querySelector(`label[for="${cb.id}"]`);
+            extHtml += `<tr style="border-bottom:1px solid #eee;">
+                <td style="padding:6px 10px;">${lbl ? lbl.textContent : ''}</td>
+                <td style="padding:6px 10px; text-align:right;">${fmt(parseFloat(cb.dataset.precio))}</td></tr>`;
+        }
+    });
+    document.getElementById('jpeg-extras').innerHTML = extHtml;
+
+    document.getElementById('jpeg-valor').textContent   = fmt(v.valorVenta);
+    document.getElementById('jpeg-dp').textContent      = '— ' + fmt(v.dp);
+    document.getElementById('jpeg-aprobado').textContent = fmt(v.montoAprobado);
+    document.getElementById('jpeg-mensual').textContent  = v.mensual ? fmt(v.mensual) + '/mes' : 'Consultar';
+}
 
 function descargarJPEG() {
-    const el = document.getElementById('documento-cotizacion');
+    const el = document.getElementById('doc-jpeg');
+    el.style.left = '0';
     html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+        el.style.left = '-9999px';
         const link = document.createElement('a');
-        link.download = 'simulacion_financiamiento_cookingbox.jpg';
+        link.download = 'simulacion_cookingbox.jpg';
         link.href = canvas.toDataURL('image/jpeg', 0.95);
         link.click();
     });
 }
+
+window.addEventListener('load', onTrailerChange);
 </script>
 </body>
 </html>
