@@ -16,6 +16,13 @@
             padding-bottom: 60px;
         }
 
+        /* ── STICKY HEADER WRAPPER ── */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
         /* ── HERO ── */
         .hero {
             background: white;
@@ -347,6 +354,7 @@
 </head>
 <body>
 
+<div class="sticky-header">
 <!-- ── HERO ── -->
 <div class="hero">
     <div class="lang-toggle">
@@ -360,6 +368,7 @@
 
 <!-- ── 3 STEPS BANNER ── -->
 <div class="steps-banner">
+
     <div class="steps-inner">
         <div class="step">
             <div class="step-num active">1</div>
@@ -378,6 +387,7 @@
         </div>
     </div>
 </div>
+</div><!-- /sticky-header -->
 
 <div class="wrap">
 
