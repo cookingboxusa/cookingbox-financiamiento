@@ -448,9 +448,13 @@ def cotizador():
                 extras_sel.append(ex)
                 total_extras += ex["precio"]
 
+        MONTO_MAX = 21000
+
         precio_trailer = trailer["precio"]
         valor_venta = precio_trailer + total_hood + total_equipos + total_extras
-        monto_financiado = valor_venta - down_payment
+        monto_bruto = valor_venta - down_payment
+        monto_financiado = min(monto_bruto, MONTO_MAX)
+        down_adicional = max(0, monto_bruto - MONTO_MAX)
         pago_semanal = calcular_pago_semanal(monto_financiado)
 
         resultado = {
@@ -468,6 +472,7 @@ def cotizador():
             "valor_venta": valor_venta,
             "down_payment": down_payment,
             "monto_financiado": monto_financiado,
+            "down_adicional": down_adicional,
             "pago_semanal": pago_semanal,
         }
 

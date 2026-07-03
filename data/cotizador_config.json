@@ -1,10 +1,10 @@
 {
   "trailers": [
-    {"modelo": "12 pies (1 Axle 6,000 lbs)",  "precio": 14750, "descripcion": "8X12 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T12'", "precio": 100}]},
-    {"modelo": "16 pies (2 Axle 12,000 lbs)",  "precio": 17800, "descripcion": "8X16 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T16'", "precio": 150}]},
-    {"modelo": "18 pies (2 Axle 12,000 lbs)",  "precio": 18500, "descripcion": "8X18 Enclosed Kitchen Ready", "extras": []},
-    {"modelo": "20 pies (2 Axle 12,000 lbs)",  "precio": 18500, "descripcion": "8X20 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T20'", "precio": 200}]},
-    {"modelo": "24 pies (2 Axle 12,000 lbs)",  "precio": 18500, "descripcion": "8X24 Enclosed Kitchen Ready", "extras": []}
+    {"modelo": "12 pies (1 Axle 6,000 lbs)",  "precio": 25250, "descripcion": "8X12 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T12'", "precio": 100}]},
+    {"modelo": "16 pies (2 Axle 12,000 lbs)",  "precio": 28500, "descripcion": "8X16 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T16'", "precio": 150}]},
+    {"modelo": "18 pies (2 Axle 12,000 lbs)",  "precio": 29700, "descripcion": "8X18 Enclosed Kitchen Ready", "extras": []},
+    {"modelo": "20 pies (2 Axle 12,000 lbs)",  "precio": 29700, "descripcion": "8X20 Enclosed Kitchen Ready", "extras": [{"nombre": "Exterior Color T20'", "precio": 200}]},
+    {"modelo": "24 pies (2 Axle 12,000 lbs)",  "precio": 29700, "descripcion": "8X24 Enclosed Kitchen Ready", "extras": []}
   ],
   "hood_opciones": [
     {"nombre": "6' Hood",  "precio": 275},
