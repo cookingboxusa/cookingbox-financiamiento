@@ -34,13 +34,13 @@
             <input type="date" name="fecha" id="fecha" value="{{ form.get('fecha', hoy) }}">
 
             <label>Nombre del cliente</label>
-            <input type="text" name="cliente_nombre" id="cliente_nombre" value="{{ form.get('cliente_nombre','') }}" required>
+            <input type="text" name="cliente_nombre" id="cliente_nombre" value="{{ form.get('cliente_nombre') or prefill.get('cliente_nombre','') }}" required>
 
             <label>Dirección del cliente</label>
-            <input type="text" name="cliente_direccion" id="cliente_direccion" value="{{ form.get('cliente_direccion','') }}" required>
+            <input type="text" name="cliente_direccion" id="cliente_direccion" value="{{ form.get('cliente_direccion') or prefill.get('cliente_direccion','') }}" required>
 
             <label>Teléfono</label>
-            <input type="text" name="cliente_telefono" id="cliente_telefono" value="{{ form.get('cliente_telefono','') }}" required>
+            <input type="text" name="cliente_telefono" id="cliente_telefono" value="{{ form.get('cliente_telefono') or prefill.get('cliente_telefono','') }}" required>
 
             <label>Descripción (ej: FOOD TRAILER 8X16)</label>
             <input type="text" name="descripcion" value="{{ form.get('descripcion','FOOD TRAILER 8X16') }}" required>

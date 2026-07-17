@@ -1,10 +1,10 @@
 [
   {"modelo": "7x10", "pies": 10, "precio": 18950, "down_min": null},
-  {"modelo": "12 pies", "pies": 12, "precio": null, "down_min": 5250},
+  {"modelo": "12 pies", "pies": 12, "precio": 25250, "down_min": 5250},
   {"modelo": "14 pies", "pies": 14, "precio": null, "down_min": 6250},
-  {"modelo": "16 pies", "pies": 16, "precio": null, "down_min": 7500},
-  {"modelo": "18 pies", "pies": 18, "precio": null, "down_min": 9000},
-  {"modelo": "20 pies", "pies": 20, "precio": null, "down_min": 10500},
+  {"modelo": "16 pies", "pies": 16, "precio": 28500, "down_min": 7500},
+  {"modelo": "18 pies", "pies": 18, "precio": 29700, "down_min": 9000},
+  {"modelo": "20 pies", "pies": 20, "precio": 29700, "down_min": 10500},
   {"modelo": "22 pies", "pies": 22, "precio": null, "down_min": 12000},
-  {"modelo": "24 pies", "pies": 24, "precio": null, "down_min": 13500}
+  {"modelo": "24 pies", "pies": 24, "precio": 29700, "down_min": 13500}
 ]

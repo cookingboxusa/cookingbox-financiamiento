@@ -3,159 +3,689 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Solicitud de Financiamiento - CookingBox</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% if solicitud %}Expediente #{{ solicitud.id }}{% else %}Nueva Solicitud{% endif %} — CookingBox</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            padding-bottom: 60px;
+        }
+
+        /* ── STICKY HEADER ── */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .hero {
+            background: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .hero img { height: 48px; width: auto; }
+        .hero-text h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            line-height: 1.2;
+        }
+        .hero-text p {
+            font-size: 0.75rem;
+            color: #6e6e73;
+            margin-top: 2px;
+        }
+        .hero-badge {
+            margin-left: auto;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .badge-ok  { background: #d5f5e3; color: #1e8449; }
+        .badge-pend { background: #fdecea; color: #c0392b; }
+
+        /* ── STATUS BAR (expediente existente) ── */
+        .status-bar {
+            background: #1a3a5c;
+            padding: 10px 20px;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.7);
+        }
+        .status-bar strong { color: white; }
+
+        /* ── WRAP ── */
+        .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+        /* ── CARDS ── */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px 20px;
+            margin-top: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .card-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #aeaeb2;
+            margin-bottom: 14px;
+        }
+
+        /* ── DOWN PAYMENT ── */
+        .dp-row { display: flex; align-items: center; border: 1.5px solid #d2d2d7; border-radius: 12px; padding: 0 16px; transition: border-color 0.15s; }
+        .dp-row:focus-within { border-color: #1a3a5c; }
+        .dp-sym { font-size: 1.4rem; font-weight: 200; color: #aeaeb2; margin-right: 6px; }
+        .dp-input {
+            border: none; outline: none;
+            font-size: 1.9rem; font-weight: 300;
+            color: #1d1d1f; width: 100%;
+            padding: 13px 0; background: transparent;
+            font-family: inherit;
+        }
+
+        /* ── PERSONA TABS ── */
+        .tab-bar {
+            display: flex;
+            background: white;
+            border-radius: 16px;
+            margin-top: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 16px 12px;
+            border: none;
+            background: white;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #6e6e73;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 2.5px solid transparent;
+            transition: all 0.15s;
+        }
+        .tab-btn.active {
+            color: #1a3a5c;
+            border-bottom-color: #1a3a5c;
+        }
+        .tab-badge {
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+        }
+        .badge-complete { background: #d5f5e3; color: #1e8449; }
+        .badge-missing  { background: #fdecea; color: #c0392b; }
+
+        /* ── PANELS ── */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── FORM FIELDS ── */
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #3a3a3c;
+            margin-bottom: 5px;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #1d1d1f;
+            background: white;
+            outline: none;
+            transition: border-color 0.15s;
+            -webkit-appearance: none;
+        }
+        .field input:focus, .field select:focus { border-color: #1a3a5c; }
+        .field input.error, .field select.error { border-color: #c0392b; background: #fff8f8; }
+        .field .err-msg {
+            font-size: 0.72rem;
+            color: #c0392b;
+            margin-top: 4px;
+            display: none;
+        }
+        .field input.error + .err-msg,
+        .field select.error + .err-msg { display: block; }
+
+        /* ── GRID 2 COLS ── */
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+
+        /* ── REFS ── */
+        .ref-block {
+            border: 1.5px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .ref-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #aeaeb2;
+            margin-bottom: 10px;
+        }
+        .ref-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        @media (max-width: 500px) { .ref-grid { grid-template-columns: 1fr 1fr; } }
+
+        /* ── UPLOAD ── */
+        .upload-zone {
+            border: 1.5px dashed #d2d2d7;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            position: relative;
+        }
+        .upload-zone:hover { border-color: #1a3a5c; }
+        .upload-zone input[type="file"] {
+            position: absolute; inset: 0;
+            opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .upload-zone .uz-icon { font-size: 1.4rem; margin-bottom: 4px; }
+        .upload-zone .uz-label { font-size: 0.8rem; color: #6e6e73; font-weight: 500; }
+        .upload-zone .uz-hint  { font-size: 0.7rem; color: #aeaeb2; margin-top: 2px; }
+        .file-loaded {
+            font-size: 0.78rem;
+            color: #1e8449;
+            background: #f0faf5;
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+        }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #1a3a5c;
+            padding: 18px 0 10px;
+            border-bottom: 1.5px solid #f0f0f0;
+            margin-bottom: 14px;
+        }
+
+        /* ── SUBMIT ── */
+        .btn-submit {
+            display: block; width: 100%; margin-top: 20px;
+            background: #1a3a5c; color: white;
+            border: none; border-radius: 12px;
+            padding: 16px; font-size: 1rem; font-weight: 600;
+            font-family: inherit; cursor: pointer; letter-spacing: 0.2px;
+            transition: opacity 0.15s;
+        }
+        .btn-submit:hover { opacity: 0.88; }
+
+        /* ── ERROR SUMMARY ── */
+        #error-summary {
+            display: none;
+            background: #fdecea;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: #c0392b;
+        }
+
+        .nav-back {
+            display: block; text-align: center; margin-top: 22px;
+            font-size: 0.82rem; color: #aeaeb2; text-decoration: none;
+        }
+        .nav-back:hover { color: #6e6e73; }
+
+        /* ── SELECT arrow ── */
+        .field select {
+            background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aeaeb2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+            padding-right: 36px;
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .actions-card { margin-top: 14px; }
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        @media (max-width: 520px) { .actions-grid { grid-template-columns: 1fr; } }
+        .btn-action {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 5px; padding: 16px 10px; border-radius: 12px;
+            font-family: inherit; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; border: none; text-decoration: none;
+            transition: opacity 0.15s; text-align: center; line-height: 1.3;
+        }
+        .btn-action:hover { opacity: 0.85; }
+        .btn-action .ico { font-size: 1.4rem; }
+        .btn-act-navy  { background: #1a3a5c; color: white; }
+        .btn-act-red   { background: #c0392b; color: white; }
+        .btn-act-gray  { background: #f0f0f5; color: #1a3a5c; border: 1.5px solid #dddde8; }
+        .divider-label {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px;
+            text-transform: uppercase; color: #aeaeb2; margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>CookingBox Food Trailers<br>
-        {% if solicitud %}Expediente #{{ solicitud.id }}{% else %}Nueva Solicitud de Financiamiento{% endif %}
-    </h1>
 
-    {% if solicitud %}
-    <div class="card">
-        {% if completo %}
-            <p><span class="badge-ok">EXPEDIENTE COMPLETO — Listo para sistema de aprobaciones</span></p>
-        {% else %}
-            <p><span class="badge-no">Incompleto — {{ pendientes|length }} pendiente(s)</span></p>
-            <ul class="pendientes">
-                {% for p in pendientes %}<li>{{ p }}</li>{% endfor %}
-            </ul>
-        {% endif %}
-        {% if modelos %}
-        <hr class="divider">
-        <h3>Modelos que califican con ${{ '{:,.0f}'.format(solicitud.down_payment) }} de down payment</h3>
-        <table>
-            <tr><th>Modelo</th><th>Down mín.</th><th>Califica</th><th>Balance</th></tr>
-            {% for m in modelos %}
-            <tr>
-                <td>{{ m.modelo }}</td>
-                <td>${{ '{:,.0f}'.format(m.down_min) }}</td>
-                <td>{% if m.califica %}<span class="ok">SI</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                <td>{% if m.balance is not none %}${{ '{:,.2f}'.format(m.balance) }}{% elif m.califica %}<span class="precio-pendiente">Falta precio</span>{% else %}-{% endif %}</td>
-            </tr>
-            {% endfor %}
-        </table>
+<!-- ── STICKY HEADER ── -->
+<div class="sticky-header">
+    <div class="hero">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="CookingBox">
+        <div class="hero-text">
+            <h1>{% if solicitud %}Expediente #{{ solicitud.id }}{% else %}Nueva Solicitud de Financiamiento{% endif %}</h1>
+            <p>CookingBox Food Trailers — Howe, TX</p>
+        </div>
+        {% if solicitud %}
+        <span class="hero-badge {% if completo %}badge-ok{% else %}badge-pend{% endif %}">
+            {% if completo %}✓ Completo{% else %}{{ pendientes|length }} pendiente(s){% endif %}
+        </span>
         {% endif %}
     </div>
+    {% if solicitud and not completo %}
+    <div class="status-bar">
+        Pendiente: <strong>{{ pendientes | join(' · ') }}</strong>
+    </div>
     {% endif %}
+</div>
 
-    <form method="POST" enctype="multipart/form-data">
+<div class="wrap">
 
-        <div class="card">
-            <h2>Down Payment</h2>
-            <label for="down_payment">Monto disponible para down payment (USD)</label>
-            <input type="number" step="0.01" min="0" id="down_payment" name="down_payment"
-                   value="{{ solicitud.down_payment if solicitud else '' }}" required>
+    <form method="POST" enctype="multipart/form-data" id="mainForm" novalidate>
+
+        <!-- Down Payment (opcional, referencia del simulador) -->
+        <div class="card" style="padding:14px 20px;">
+            <p class="card-label" style="margin-bottom:6px;">Down Payment estimado <span style="font-weight:400;color:#aeaeb2;letter-spacing:0;">(opcional · del simulador)</span></p>
+            <div class="dp-row">
+                <span class="dp-sym">$</span>
+                <input type="text" id="dp_display" inputmode="numeric"
+                       class="dp-input" placeholder="0"
+                       style="font-size:1.4rem;"
+                       value="{{ '{:,.0f}'.format(solicitud.down_payment) if solicitud and solicitud.down_payment else '' }}"
+                       oninput="formatDP(this)">
+                <input type="hidden" name="down_payment" id="down_payment_hidden"
+                       value="{{ solicitud.down_payment if solicitud and solicitud.down_payment else '' }}">
+            </div>
+        </div>
+
+        <!-- TABS Aplicante / Coaplicante -->
+        <div class="tab-bar">
+            <button type="button" class="tab-btn active" id="tab-btn-aplicante"
+                    onclick="switchTab('aplicante')">
+                Aplicante Principal
+                <span class="tab-badge" id="badge-aplicante">—</span>
+            </button>
+            <button type="button" class="tab-btn" id="tab-btn-coaplicante"
+                    onclick="switchTab('coaplicante')">
+                Coaplicante / Socio
+                <span class="tab-badge" id="badge-coaplicante">—</span>
+            </button>
         </div>
 
         {% for prefijo, titulo, persona in [
             ("aplicante",   "Aplicante Principal",  solicitud.aplicante   if solicitud else {}),
             ("coaplicante", "Coaplicante / Socio",  solicitud.coaplicante if solicitud else {})
         ] %}
-        <div class="card">
-            <h2>{{ titulo }}</h2>
+        <div class="tab-panel {% if prefijo == 'aplicante' %}active{% endif %}"
+             id="panel-{{ prefijo }}">
 
-            <label>Nombre completo</label>
-            <input type="text" name="{{ prefijo }}_nombre" value="{{ persona.get('nombre','') }}" required>
+            <!-- Datos personales -->
+            <div class="card">
+                <p class="section-title">Datos personales</p>
 
-            <label>Dirección</label>
-            <input type="text" name="{{ prefijo }}_direccion" value="{{ persona.get('direccion','') }}" required>
-
-            <label>Teléfono</label>
-            <input type="text" name="{{ prefijo }}_telefono" value="{{ persona.get('telefono','') }}" required>
-
-            <label>Correo electrónico</label>
-            <input type="email" name="{{ prefijo }}_email" value="{{ persona.get('email','') }}">
-
-            <label>Tiempo solicitado del contrato</label>
-            <select name="{{ prefijo }}_plazo" required>
-                <option value="">-- Seleccionar plazo --</option>
-                {% for p in plazos %}
-                <option value="{{ p }}" {% if persona.get('plazo') == p %}selected{% endif %}>{{ p }}</option>
-                {% endfor %}
-            </select>
-
-            {% if prefijo == "aplicante" %}
-            <label>Dirección donde se pondrá a trabajar el trailer</label>
-            <input type="text" name="aplicante_direccion_trailer"
-                   value="{{ persona.get('direccion_trailer','') }}" required>
-            {% endif %}
-
-            <label>Red social (solo una — ej: @cookingboxusa en Instagram)</label>
-            <input type="text" name="{{ prefijo }}_red_social"
-                   value="{{ persona.get('red_social','') }}" placeholder="@usuario o URL">
-
-            <hr class="divider">
-            <h3>5 Referencias Personales</h3>
-
-            {% set refs = persona.get('referencias', [{},{},{},{},{}]) %}
-            {% for i in range(1, 6) %}
-            {% set ref = refs[i-1] if refs|length >= i else {} %}
-            <p style="font-weight:600; margin:8px 0 4px; color:#c0392b;">Referencia {{ i }}</p>
-            <div class="ref-grid">
-                <div>
-                    <label>Nombre</label>
-                    <input type="text" name="{{ prefijo }}_ref{{ i }}_nombre" value="{{ ref.get('nombre','') }}">
+                <div class="grid2">
+                    <div class="field">
+                        <label>Nombre completo *</label>
+                        <input type="text" name="{{ prefijo }}_nombre"
+                               value="{{ persona.get('nombre','') }}"
+                               placeholder="Nombre y apellidos" data-req="true">
+                        <span class="err-msg">Campo obligatorio.</span>
+                    </div>
+                    <div class="field">
+                        <label>Teléfono *</label>
+                        <input type="tel" name="{{ prefijo }}_telefono"
+                               value="{{ persona.get('telefono','') }}"
+                               placeholder="(956) 000-0000"
+                               data-req="true" data-req-tel="true"
+                               maxlength="14" inputmode="numeric"
+                               oninput="formatTel(this)">
+                        <span class="err-msg">Ingresa un número de 10 dígitos: (956) 000-0000</span>
+                    </div>
                 </div>
-                <div>
-                    <label>Teléfono</label>
-                    <input type="text" name="{{ prefijo }}_ref{{ i }}_telefono" value="{{ ref.get('telefono','') }}">
+
+                <div class="field">
+                    <label>Dirección *</label>
+                    <input type="text" name="{{ prefijo }}_direccion"
+                           value="{{ persona.get('direccion','') }}"
+                           placeholder="Calle, ciudad, estado, zip" data-req="true">
+                    <span class="err-msg">Campo obligatorio.</span>
                 </div>
-                <div>
-                    <label>Parentesco</label>
-                    <select name="{{ prefijo }}_ref{{ i }}_parentesco">
-                        <option value="">-- Parentesco --</option>
-                        {% for par in parentescos %}
-                        <option value="{{ par }}" {% if ref.get('parentesco') == par %}selected{% endif %}>{{ par }}</option>
-                        {% endfor %}
-                    </select>
+
+                <div class="grid2">
+                    <div class="field">
+                        <label>Correo electrónico *</label>
+                        <input type="email" name="{{ prefijo }}_email"
+                               value="{{ persona.get('email','') }}"
+                               placeholder="correo@email.com" data-req="true">
+                        <span class="err-msg">Campo obligatorio.</span>
+                    </div>
+                    <div class="field">
+                        <label>Red social *</label>
+                        <input type="text" name="{{ prefijo }}_red_social"
+                               value="{{ persona.get('red_social','') }}"
+                               placeholder="@usuario" data-req="true">
+                        <span class="err-msg">Campo obligatorio.</span>
+                    </div>
                 </div>
+
+                <!-- Plazo siempre 36 meses (oculto) -->
+                <input type="hidden" name="{{ prefijo }}_plazo" value="36 meses">
+
+                {% if prefijo == "aplicante" %}
+                <div class="field">
+                    <label>Dirección donde trabajará el trailer *</label>
+                    <input type="text" name="aplicante_direccion_trailer"
+                           value="{{ persona.get('direccion_trailer','') }}"
+                           placeholder="Local, estacionamiento o dirección del negocio" data-req="true">
+                    <span class="err-msg">Campo obligatorio.</span>
+                </div>
+                {% endif %}
             </div>
-            {% endfor %}
 
-            <hr class="divider">
-            <h3>Documentos requeridos</h3>
+            <!-- Referencias -->
+            <div class="card">
+                <p class="section-title">5 Referencias Personales</p>
 
-            <label>Foto de ID (pasaporte o licencia)</label>
-            {% if solicitud and persona.get('id_doc') %}
-            <p class="file-actual">
-                Cargado: <a href="{{ url_for('uploaded_file', solicitud_id=solicitud.id, filename=persona.id_doc) }}" target="_blank">{{ persona.id_doc }}</a>
-                — sube nuevo para reemplazar
-            </p>
-            {% endif %}
-            <input type="file" name="{{ prefijo }}_id_doc" accept=".jpg,.jpeg,.png,.pdf,.heic">
+                {% set refs = persona.get('referencias', [{},{},{},{},{}]) %}
+                {% for i in range(1, 6) %}
+                {% set ref = refs[i-1] if refs|length >= i else {} %}
+                <div class="ref-block">
+                    <p class="ref-num">Referencia {{ i }}</p>
+                    <div class="ref-grid">
+                        <div class="field" style="margin:0">
+                            <label>Nombre *</label>
+                            <input type="text" name="{{ prefijo }}_ref{{ i }}_nombre"
+                                   value="{{ ref.get('nombre','') }}"
+                                   placeholder="Nombre completo" data-req="true">
+                            <span class="err-msg">Obligatorio.</span>
+                        </div>
+                        <div class="field" style="margin:0">
+                            <label>Teléfono *</label>
+                            <input type="tel" name="{{ prefijo }}_ref{{ i }}_telefono"
+                                   value="{{ ref.get('telefono','') }}"
+                                   placeholder="000-000-0000" data-req="true">
+                            <span class="err-msg">Obligatorio.</span>
+                        </div>
+                        <div class="field" style="margin:0">
+                            <label>Parentesco *</label>
+                            <select name="{{ prefijo }}_ref{{ i }}_parentesco" data-req="true">
+                                <option value="">-- Seleccionar --</option>
+                                {% for par in parentescos %}
+                                <option value="{{ par }}" {% if ref.get('parentesco') == par %}selected{% endif %}>{{ par }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="err-msg">Obligatorio.</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
 
-            <label>Comprobante de domicilio</label>
-            {% if solicitud and persona.get('comprobante') %}
-            <p class="file-actual">
-                Cargado: <a href="{{ url_for('uploaded_file', solicitud_id=solicitud.id, filename=persona.comprobante) }}" target="_blank">{{ persona.comprobante }}</a>
-                — sube nuevo para reemplazar
-            </p>
-            {% endif %}
-            <input type="file" name="{{ prefijo }}_comprobante" accept=".jpg,.jpeg,.png,.pdf,.heic">
+            <!-- Documentos -->
+            <div class="card">
+                <p class="section-title">Documentos requeridos</p>
+                <p style="font-size:0.8rem; color:#6e6e73; margin-bottom:16px;">
+                    JPG, PNG, PDF o HEIC · máx. 10 MB cada uno
+                </p>
 
-            {% if prefijo == "aplicante" %}
-            <label>Estado de cuenta (muestra capital para el down payment)</label>
-            {% if solicitud and persona.get('estado_cuenta') %}
-            <p class="file-actual">
-                Cargado: <a href="{{ url_for('uploaded_file', solicitud_id=solicitud.id, filename=persona.estado_cuenta) }}" target="_blank">{{ persona.estado_cuenta }}</a>
-                — sube nuevo para reemplazar
-            </p>
-            {% endif %}
-            <input type="file" name="aplicante_estado_cuenta" accept=".jpg,.jpeg,.png,.pdf,.heic">
-            {% endif %}
+                <div class="field">
+                    <label>📷 Foto de ID (pasaporte o licencia) *</label>
+                    {% if solicitud and persona.get('id_doc') %}
+                    <div class="file-loaded">✅ {{ persona.id_doc }} —
+                        <a href="{{ url_for('uploaded_file', solicitud_id=solicitud.id, filename=persona.id_doc) }}" target="_blank">ver</a>
+                    </div>
+                    {% endif %}
+                    <div class="upload-zone">
+                        <input type="file" name="{{ prefijo }}_id_doc" accept=".jpg,.jpeg,.png,.pdf,.heic"
+                               {% if not (solicitud and persona.get('id_doc')) %}data-req="file"{% endif %}>
+                        <div class="uz-icon">📄</div>
+                        <div class="uz-label">{% if solicitud and persona.get('id_doc') %}Subir nuevo (opcional){% else %}Seleccionar archivo{% endif %}</div>
+                        <div class="uz-hint">Toca para elegir</div>
+                    </div>
+                </div>
 
-        </div>
+                <div class="field">
+                    <label>🏠 Comprobante de domicilio *</label>
+                    {% if solicitud and persona.get('comprobante') %}
+                    <div class="file-loaded">✅ {{ persona.comprobante }} —
+                        <a href="{{ url_for('uploaded_file', solicitud_id=solicitud.id, filename=persona.comprobante) }}" target="_blank">ver</a>
+                    </div>
+                    {% endif %}
+                    <div class="upload-zone">
+                        <input type="file" name="{{ prefijo }}_comprobante" accept=".jpg,.jpeg,.png,.pdf,.heic"
+                               {% if not (solicitud and persona.get('comprobante')) %}data-req="file"{% endif %}>
+                        <div class="uz-icon">🏠</div>
+                        <div class="uz-label">{% if solicitud and persona.get('comprobante') %}Subir nuevo (opcional){% else %}Seleccionar archivo{% endif %}</div>
+                        <div class="uz-hint">Toca para elegir</div>
+                    </div>
+                </div>
+
+                {% if prefijo == "aplicante" %}
+                <div class="field">
+                    <label>🏦 Estado de cuenta (down payment) *</label>
+                    {% if solicitud and persona.get('estado_cuenta') %}
+                    <div class="file-loaded">✅ {{ persona.estado_cuenta }} —
+                        <a href="{{ url_for('uploaded_file', solicitud_id=solicitud.id, filename=persona.estado_cuenta) }}" target="_blank">ver</a>
+                    </div>
+                    {% endif %}
+                    <div class="upload-zone">
+                        <input type="file" name="aplicante_estado_cuenta" accept=".jpg,.jpeg,.png,.pdf,.heic"
+                               {% if not (solicitud and persona.get('estado_cuenta')) %}data-req="file"{% endif %}>
+                        <div class="uz-icon">🏦</div>
+                        <div class="uz-label">{% if solicitud and persona.get('estado_cuenta') %}Subir nuevo (opcional){% else %}Seleccionar archivo{% endif %}</div>
+                        <div class="uz-hint">Toca para elegir</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div><!-- /tab-panel -->
         {% endfor %}
 
-        <button type="submit">
-            {% if solicitud %}Actualizar expediente{% else %}Guardar solicitud{% endif %}
+        <div id="error-summary">
+            ⚠️ Hay campos incompletos. Revisa las pestañas marcadas en rojo.
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnGuardar" disabled>
+            {% if solicitud %}💾 Actualizar expediente{% else %}✅ Enviar solicitud{% endif %}
         </button>
+        <p id="btn-hint" style="text-align:center; font-size:0.78rem; color:#aeaeb2; margin-top:8px; display:none;">
+            Completa todos los campos y archivos para habilitar el envío.
+        </p>
+
     </form>
 
-    <a class="btn btn-secondary" href="{{ url_for('solicitudes_lista') }}">Ver todas las solicitudes</a>
-    <a class="nav-link" href="{{ url_for('index') }}">Panel principal</a>
-</div>
+    {% if solicitud %}
+    <!-- ── ACCIONES / DESCARGAS ── -->
+    <div class="card actions-card" style="margin-top:18px;">
+        <p class="divider-label">Descargar formatos listos</p>
+        <div class="actions-grid">
+            <a class="btn-action btn-act-navy"
+               href="{{ url_for('solicitud_imprimir', solicitud_id=solicitud.id) }}"
+               target="_blank">
+                <span class="ico">🖨️</span>
+                Expediente completo
+            </a>
+            <a class="btn-action btn-act-red"
+               href="{{ url_for('bos_caja', _anchor='', solicitud_id=solicitud.id) }}"
+               target="_blank">
+                <span class="ico">📄</span>
+                BOS — La Caja
+            </a>
+            <a class="btn-action btn-act-gray"
+               href="{{ url_for('bos_kappa', _anchor='', solicitud_id=solicitud.id) }}"
+               target="_blank">
+                <span class="ico">📋</span>
+                BOS — Kappa
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="nav-back">← Panel principal</a>
+
+</div><!-- /wrap -->
+
+<script>
+// ── Format phone (US) ────────────────────────────────────────────────────────
+function formatTel(input) {
+    let digits = input.value.replace(/\D/g, '').slice(0, 10);
+    let fmt = '';
+    if (digits.length === 0) fmt = '';
+    else if (digits.length <= 3) fmt = '(' + digits;
+    else if (digits.length <= 6) fmt = '(' + digits.slice(0,3) + ') ' + digits.slice(3);
+    else fmt = '(' + digits.slice(0,3) + ') ' + digits.slice(3,6) + '-' + digits.slice(6);
+    input.value = fmt;
+    // Validación visual en tiempo real
+    const completo = digits.length === 10;
+    input.classList.toggle('error', input.value.length > 0 && !completo);
+}
+
+function telCompleto(input) {
+    return input.value.replace(/\D/g, '').length === 10;
+}
+
+// ── Format down payment ───────────────────────────────────────────────────────
+function formatDP(input) {
+    let raw = input.value.replace(/[^0-9.]/g, '');
+    const p = raw.split('.');
+    if (p.length > 2) raw = p[0] + '.' + p.slice(1).join('');
+    const entero = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    input.value = p.length === 2 ? entero + '.' + p[1] : entero;
+    document.getElementById('down_payment_hidden').value =
+        parseFloat(input.value.replace(/,/g,'')) || '';
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+    ['aplicante','coaplicante'].forEach(t => {
+        document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+        document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+    });
+}
+
+// ── Validation ────────────────────────────────────────────────────────────────
+function getMissingCount(panelId) {
+    const panel = document.getElementById(panelId);
+    let missing = 0;
+    panel.querySelectorAll('[data-req="true"]').forEach(el => {
+        if (el.dataset.reqTel) {
+            if (el.value.replace(/\D/g,'').length !== 10) missing++;
+        } else if (!el.value.trim()) {
+            missing++;
+        }
+    });
+    panel.querySelectorAll('[data-req="file"]').forEach(el => {
+        if (!el.files || el.files.length === 0) missing++;
+    });
+    return missing;
+}
+
+function totalMissing() {
+    return getMissingCount('panel-aplicante') + getMissingCount('panel-coaplicante');
+}
+
+function updateBadges() {
+    ['aplicante','coaplicante'].forEach(prefijo => {
+        const n   = getMissingCount('panel-' + prefijo);
+        const bdg = document.getElementById('badge-' + prefijo);
+        if (n === 0) {
+            bdg.textContent = '✓';
+            bdg.className   = 'tab-badge badge-complete';
+        } else {
+            bdg.textContent = n;
+            bdg.className   = 'tab-badge badge-missing';
+        }
+    });
+
+    const btn  = document.getElementById('btnGuardar');
+    const hint = document.getElementById('btn-hint');
+    const listo = totalMissing() === 0;
+    btn.disabled = !listo;
+    btn.style.opacity = listo ? '1' : '0.4';
+    btn.style.cursor  = listo ? 'pointer' : 'not-allowed';
+    hint.style.display = listo ? 'none' : 'block';
+}
+
+function markErrors(panelId) {
+    const panel = document.getElementById(panelId);
+    let first = null;
+    panel.querySelectorAll('[data-req="true"]').forEach(el => {
+        const invalid = el.dataset.reqTel
+            ? el.value.replace(/\D/g,'').length !== 10
+            : !el.value.trim();
+        el.classList.toggle('error', invalid);
+        if (invalid && !first) first = el;
+    });
+    return first;
+}
+
+// Real-time: actualizar badges al escribir
+document.getElementById('mainForm').addEventListener('input', updateBadges);
+document.getElementById('mainForm').addEventListener('change', updateBadges);
+
+// Submit: doble verificación por seguridad
+document.getElementById('mainForm').addEventListener('submit', function(e) {
+    if (totalMissing() > 0) {
+        e.preventDefault();
+        updateBadges();
+        const errA = markErrors('panel-aplicante');
+        const errC = markErrors('panel-coaplicante');
+        document.getElementById('error-summary').style.display = 'block';
+        if (errA) { switchTab('aplicante'); errA.scrollIntoView({ behavior:'smooth', block:'center' }); }
+        else if (errC) { switchTab('coaplicante'); errC.scrollIntoView({ behavior:'smooth', block:'center' }); }
+        return;
+    }
+    document.getElementById('error-summary').style.display = 'none';
+    document.getElementById('btnGuardar').textContent = 'Enviando…';
+});
+
+// Update file upload labels
+document.querySelectorAll('.upload-zone input[type="file"]').forEach(input => {
+    input.addEventListener('change', function() {
+        const lbl = this.closest('.upload-zone').querySelector('.uz-label');
+        if (this.files && this.files[0]) {
+            lbl.textContent = '✅ ' + this.files[0].name;
+        }
+        updateBadges();
+    });
+});
+
+// Init
+updateBadges();
+</script>
 </body>
 </html>

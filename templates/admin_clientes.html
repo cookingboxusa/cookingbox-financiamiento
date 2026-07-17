@@ -3,66 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Accesos de Clientes - CookingBox</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Accesos de Clientes — CookingBox</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7; color: #1d1d1f;
+            padding-bottom: 60px;
+        }
+        .hero {
+            background: white; padding: 16px 20px;
+            display: flex; align-items: center; gap: 14px;
+            border-bottom: 1px solid #e5e5e5;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        }
+        .hero img { height: 44px; width: auto; }
+        .hero h1 { font-size: 1rem; font-weight: 700; color: #1d1d1f; }
+        .hero p  { font-size: 0.75rem; color: #6e6e73; margin-top: 2px; }
+
+        .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px; }
+
+        .card {
+            background: white; border-radius: 16px;
+            padding: 20px; margin-top: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .card-label {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: #aeaeb2; margin-bottom: 14px;
+        }
+
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-size: 0.78rem; font-weight: 600; color: #3a3a3c; margin-bottom: 5px; }
+        .field select {
+            width: 100%; padding: 12px 14px;
+            border: 1.5px solid #d2d2d7; border-radius: 10px;
+            font-size: 0.92rem; font-family: inherit;
+            background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aeaeb2' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+            padding-right: 36px; -webkit-appearance: none; outline: none;
+        }
+        .field select:focus { border-color: #1a3a5c; }
+
+        .btn-gen {
+            display: block; width: 100%;
+            background: #1a3a5c; color: white;
+            border: none; border-radius: 10px;
+            padding: 13px; font-size: 0.95rem; font-weight: 600;
+            font-family: inherit; cursor: pointer; margin-top: 4px;
+            transition: opacity 0.15s;
+        }
+        .btn-gen:hover { opacity: 0.88; }
+
+        /* ── Client rows ── */
+        .client-row {
+            border: 1.5px solid #f0f0f0; border-radius: 12px;
+            padding: 14px 16px; margin-bottom: 10px;
+        }
+        .client-name { font-size: 0.95rem; font-weight: 700; color: #1d1d1f; margin-bottom: 10px; }
+        .cred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .cred-box { background: #f5f5f7; border-radius: 8px; padding: 8px 12px; }
+        .cred-box .lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #aeaeb2; margin-bottom: 3px; }
+        .cred-box .val { font-size: 1rem; font-family: "Courier New", monospace; font-weight: 700; color: #1a3a5c; }
+        .cred-box.pw  { background: #fffbea; }
+        .cred-box.pw .val { color: #c0392b; }
+
+        .btn-row { display: flex; gap: 8px; }
+        .btn-wa {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+            background: #25D366; color: white; border: none; border-radius: 10px;
+            padding: 11px; font-size: 0.82rem; font-weight: 600;
+            font-family: inherit; cursor: pointer; text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .btn-wa:hover { opacity: 0.88; }
+        .btn-copy {
+            padding: 11px 16px; background: #f0f0f5; border: 1.5px solid #dddde8;
+            border-radius: 10px; font-size: 0.82rem; font-weight: 600;
+            font-family: inherit; color: #1a3a5c; cursor: pointer;
+            transition: opacity 0.15s; white-space: nowrap;
+        }
+        .btn-copy:hover { opacity: 0.8; }
+        .btn-copy.copied { background: #d5f5e3; border-color: #a9dfbf; color: #1e8449; }
+        .btn-email {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+            background: #f0f0f5; color: #1a3a5c; border: 1.5px solid #dddde8;
+            border-radius: 10px; padding: 11px; font-size: 0.82rem; font-weight: 600;
+            font-family: inherit; cursor: pointer; text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .btn-email:hover { opacity: 0.85; }
+
+        .created { font-size: 0.72rem; color: #aeaeb2; margin-top: 8px; }
+
+        .empty { color: #aeaeb2; font-size: 0.88rem; text-align: center; padding: 20px 0; }
+        .warning {
+            background: #fdecea; border-radius: 10px; padding: 10px 14px;
+            font-size: 0.8rem; color: #c0392b; margin-top: 14px;
+        }
+        .nav-back {
+            display: block; text-align: center; margin-top: 22px;
+            font-size: 0.82rem; color: #aeaeb2; text-decoration: none;
+        }
+        .nav-back:hover { color: #6e6e73; }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>Accesos del Portal de Clientes</h1>
 
+<div class="hero">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="CookingBox">
+    <div>
+        <h1>Accesos del Portal de Clientes</h1>
+        <p>CookingBox Food Trailers — Howe, TX</p>
+    </div>
+</div>
+
+<div class="wrap">
+
+    <!-- Crear acceso -->
     <div class="card">
-        <h2>Crear acceso para cliente</h2>
-        <p style="font-size:0.88rem; color:#666; margin-top:0;">
-            Selecciona la solicitud del cliente y genera su usuario y contraseña automáticamente.
-        </p>
+        <p class="card-label">Crear acceso para un cliente</p>
         <form method="POST" action="{{ url_for('admin_crear_cliente') }}">
-            <label>Seleccionar solicitud</label>
-            <select name="solicitud_id" required>
-                <option value="">-- Seleccionar cliente --</option>
-                {% for s in sol_map.values() %}
-                {% set ya_tiene = clientes | selectattr('solicitud_id','equalto', s.id) | list | length > 0 %}
-                <option value="{{ s.id }}" {% if ya_tiene %}disabled{% endif %}>
-                    {{ s.aplicante.nombre or '(sin nombre)' }} — ID: {{ s.id }}
-                    {% if ya_tiene %}(ya tiene acceso){% endif %}
-                </option>
-                {% endfor %}
-            </select>
-            <button type="submit" style="margin-top:10px;">Generar usuario y contraseña</button>
+            <div class="field">
+                <label>Seleccionar solicitud</label>
+                <select name="solicitud_id" required>
+                    <option value="">— Seleccionar cliente —</option>
+                    {% for s in sol_map.values() %}
+                    {% set ya_tiene = clientes | selectattr('solicitud_id','equalto', s.id) | list | length > 0 %}
+                    <option value="{{ s.id }}" {% if ya_tiene %}disabled{% endif %}>
+                        {{ s.aplicante.nombre or '(sin nombre)' }} — ID: {{ s.id }}
+                        {% if ya_tiene %}(ya tiene acceso){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn-gen">Generar usuario y contraseña</button>
         </form>
     </div>
 
+    <!-- Accesos generados -->
     <div class="card">
-        <h2>Accesos generados</h2>
+        <p class="card-label">Accesos generados</p>
+
         {% if clientes %}
-        <table>
-            <tr>
-                <th>Cliente</th>
-                <th>Usuario</th>
-                <th>Contraseña</th>
-                <th>URL para compartir</th>
-                <th>Creado</th>
-            </tr>
             {% for c in clientes %}
-            <tr>
-                <td><strong>{{ c.nombre }}</strong></td>
-                <td style="font-family:monospace; background:#f5f5f5; padding:4px 8px; border-radius:4px;">{{ c.usuario }}</td>
-                <td style="font-family:monospace; background:#fff3cd; padding:4px 8px; border-radius:4px; font-weight:bold;">{{ c.clave_visible }}</td>
-                <td style="font-size:0.8rem; color:#1e8449;">
-                    /cliente/login
-                </td>
-                <td style="font-size:0.8rem; color:#999;">{{ c.creado[:10] }}</td>
-            </tr>
+            <div class="client-row">
+                <p class="client-name">{{ c.nombre }}</p>
+                <div class="cred-grid">
+                    <div class="cred-box">
+                        <div class="lbl">Usuario</div>
+                        <div class="val">{{ c.usuario }}</div>
+                    </div>
+                    <div class="cred-box pw">
+                        <div class="lbl">Contraseña</div>
+                        <div class="val">{{ c.clave_visible }}</div>
+                    </div>
+                </div>
+                {% set email_cliente = sol_map[c.solicitud_id].aplicante.get('email','') if c.solicitud_id in sol_map else '' %}
+                <div class="btn-row">
+                    <a class="btn-wa"
+                       href="https://wa.me/1?text={{ ('Hola ' ~ c.nombre ~ ', te comparto tus datos de acceso al portal de financiamiento de CookingBox Food Trailers:%0A%0A🔗 Link: cookingboxusa.com/cliente/login%0A👤 Usuario: ' ~ c.usuario ~ '%0A🔑 Contraseña: ' ~ c.clave_visible ~ '%0A%0AIngresa y completa tu solicitud para que podamos procesar tu financiamiento. ¡Tu food trailer te está esperando! 🚚') | urlencode }}"
+                       target="_blank">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.112 1.523 5.84L0 24l6.324-1.501A11.942 11.942 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.6a9.572 9.572 0 01-4.889-1.341l-.351-.208-3.753.89.934-3.652-.228-.374A9.558 9.558 0 012.4 12C2.4 6.698 6.698 2.4 12 2.4S21.6 6.698 21.6 12 17.302 21.6 12 21.6z"/>
+                        </svg>
+                        Enviar por WhatsApp
+                    </a>
+                    <a class="btn-email"
+                       href="mailto:{{ email_cliente }}?subject=Tus%20datos%20de%20acceso%20-%20CookingBox%20Food%20Trailers&body={{ ('Hola ' ~ c.nombre ~ ',%0A%0ATe compartimos tus datos de acceso al portal de financiamiento de CookingBox Food Trailers:%0A%0A🔗 Link: cookingboxusa.com/cliente/login%0A👤 Usuario: ' ~ c.usuario ~ '%0A🔑 Contraseña: ' ~ c.clave_visible ~ '%0A%0AIngresa y completa tu solicitud para que podamos procesar tu financiamiento.%0A%0A¡Tu food trailer te está esperando! 🚚%0A%0ACookingBox Food Trailers%0Asales@cookingboxusa.com') | urlencode }}"
+                       target="_blank">
+                        ✉️ Correo
+                    </a>
+                    <button class="btn-copy"
+                            onclick="copiarCredenciales(this, '{{ c.nombre }}', '{{ c.usuario }}', '{{ c.clave_visible }}')">
+                        📋 Copiar
+                    </button>
+                </div>
+                <p class="created">Creado el {{ c.creado[:10] }}</p>
+            </div>
             {% endfor %}
-        </table>
-        <p style="font-size:0.82rem; color:#c0392b; margin-top:12px;">
-            ⚠️ Guarda estas contraseñas — solo se muestran aquí. Envíaselas al cliente por WhatsApp o email.
-        </p>
+
+            <div class="warning">
+                ⚠️ Guarda estas contraseñas — solo se muestran aquí. Envíaselas al cliente por WhatsApp o email.
+            </div>
         {% else %}
-        <p style="color:#999;">Todavía no has generado accesos para ningún cliente.</p>
+            <p class="empty">Todavía no has generado accesos para ningún cliente.</p>
         {% endif %}
     </div>
 
-    <a class="nav-link" href="{{ url_for('index') }}">Panel principal</a>
+    <a href="{{ url_for('index') }}" class="nav-back">← Panel principal</a>
 </div>
+
+<script>
+function copiarCredenciales(btn, nombre, usuario, clave) {
+    const texto = `Hola ${nombre}, te comparto tus datos de acceso al portal de financiamiento de CookingBox Food Trailers:\n\n🔗 Link: cookingboxusa.com/cliente/login\n👤 Usuario: ${usuario}\n🔑 Contraseña: ${clave}\n\nIngresa y completa tu solicitud para que podamos procesar tu financiamiento. ¡Tu food trailer te está esperando! 🚚`;
+    navigator.clipboard.writeText(texto).then(() => {
+        btn.textContent = '✓ Copiado';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '📋 Copiar'; btn.classList.remove('copied'); }, 2500);
+    });
+}
+</script>
+
 </body>
 </html>

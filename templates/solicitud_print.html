@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Expediente #{{ s.id }} — CookingBox</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; }
+            .page-break { page-break-before: always; }
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            font-size: 12px;
+            color: #1d1d1f;
+            background: white;
+            padding: 30px 36px 40px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .print-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 2px solid #1a3a5c;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+        .print-header img { height: 52px; width: auto; }
+        .print-header h1 { font-size: 15px; font-weight: 700; color: #1a3a5c; }
+        .print-header p  { font-size: 11px; color: #6e6e73; margin-top: 3px; }
+        .print-header .meta { margin-left: auto; text-align: right; }
+        .print-header .meta .exp-id {
+            font-size: 18px; font-weight: 700; color: #c0392b; letter-spacing: 1px;
+        }
+        .print-header .meta .fecha { font-size: 10px; color: #aeaeb2; margin-top: 2px; }
+
+        /* Status pill */
+        .status-pill {
+            display: inline-block;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 10px; font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .pill-ok   { background: #d5f5e3; color: #1e8449; }
+        .pill-pend { background: #fdecea; color: #c0392b; }
+
+        /* Section */
+        .section {
+            margin-bottom: 18px;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .section-head {
+            background: #1a3a5c;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 7px 14px;
+        }
+        .section-body { padding: 12px 14px; }
+
+        /* Grid */
+        .row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .col { flex: 1; }
+        .col.col2 { flex: 2; }
+        .lbl { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #aeaeb2; margin-bottom: 2px; }
+        .val { font-size: 12px; color: #1d1d1f; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; min-height: 18px; }
+        .val.big { font-size: 16px; font-weight: 700; color: #1a3a5c; }
+
+        /* References table */
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { background: #f5f5f7; font-weight: 600; padding: 5px 8px; text-align: left; color: #3a3a3c; border-bottom: 1px solid #e5e5e5; }
+        td { padding: 5px 8px; border-bottom: 1px solid #f5f5f5; }
+        tr:last-child td { border-bottom: none; }
+
+        /* Docs */
+        .doc-chip {
+            display: inline-block;
+            padding: 3px 9px; margin: 3px 3px 3px 0;
+            border-radius: 6px; font-size: 10px; font-weight: 600;
+        }
+        .doc-ok   { background: #d5f5e3; color: #1e8449; }
+        .doc-miss { background: #fdecea; color: #c0392b; }
+
+        /* Footer */
+        .print-footer {
+            margin-top: 28px;
+            border-top: 1px solid #e5e5e5;
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #aeaeb2;
+        }
+
+        /* Print button */
+        .btn-print {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #1a3a5c; color: white;
+            border: none; border-radius: 12px;
+            padding: 13px 22px; font-size: 0.9rem; font-weight: 600;
+            font-family: inherit; cursor: pointer;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Print button -->
+<button class="btn-print no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+
+<!-- Header -->
+<div class="print-header">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="CookingBox">
+    <div>
+        <h1>CookingBox Food Trailers</h1>
+        <p>Howe, Texas · sales@cookingboxusa.com</p>
+    </div>
+    <div class="meta">
+        <div class="exp-id">EXP-{{ s.id }}</div>
+        <div class="fecha">{{ s.fecha[:10] if s.fecha else '—' }}</div>
+    </div>
+</div>
+
+<!-- Status -->
+{% if completo %}
+<span class="status-pill pill-ok">✓ Expediente completo</span>
+{% else %}
+<span class="status-pill pill-pend">⚠ Pendiente: {{ pendientes | join(' · ') }}</span>
+{% endif %}
+
+<!-- Down Payment -->
+<div class="section">
+    <div class="section-head">Financiamiento</div>
+    <div class="section-body">
+        <div class="row">
+            <div class="col">
+                <div class="lbl">Down Payment</div>
+                <div class="val big">${{ '{:,.0f}'.format(s.down_payment) if s.down_payment else '—' }}</div>
+            </div>
+            <div class="col">
+                <div class="lbl">Plazo del contrato</div>
+                <div class="val">{{ s.aplicante.get('plazo', '36 meses') }}</div>
+            </div>
+            <div class="col">
+                <div class="lbl">Fecha de solicitud</div>
+                <div class="val">{{ s.fecha[:10] if s.fecha else '—' }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Personas -->
+{% for rol, persona in [("Aplicante Principal", s.aplicante), ("Coaplicante / Socio", s.coaplicante)] %}
+<div class="section">
+    <div class="section-head">{{ rol }}</div>
+    <div class="section-body">
+        <div class="row">
+            <div class="col col2">
+                <div class="lbl">Nombre completo</div>
+                <div class="val">{{ persona.get('nombre') or '—' }}</div>
+            </div>
+            <div class="col">
+                <div class="lbl">Teléfono</div>
+                <div class="val">{{ persona.get('telefono') or '—' }}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col2">
+                <div class="lbl">Dirección</div>
+                <div class="val">{{ persona.get('direccion') or '—' }}</div>
+            </div>
+            <div class="col">
+                <div class="lbl">Correo electrónico</div>
+                <div class="val">{{ persona.get('email') or '—' }}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="lbl">Red social</div>
+                <div class="val">{{ persona.get('red_social') or '—' }}</div>
+            </div>
+            {% if rol == "Aplicante Principal" %}
+            <div class="col col2">
+                <div class="lbl">Dirección donde trabajará el trailer</div>
+                <div class="val">{{ persona.get('direccion_trailer') or '—' }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Documentos -->
+        <div style="margin-top:10px;">
+            <div class="lbl" style="margin-bottom:5px;">Documentos subidos</div>
+            <span class="doc-chip {% if persona.get('id_doc') %}doc-ok{% else %}doc-miss{% endif %}">
+                {% if persona.get('id_doc') %}✓{% else %}✗{% endif %} Foto de ID
+            </span>
+            <span class="doc-chip {% if persona.get('comprobante') %}doc-ok{% else %}doc-miss{% endif %}">
+                {% if persona.get('comprobante') %}✓{% else %}✗{% endif %} Comprobante de domicilio
+            </span>
+            {% if rol == "Aplicante Principal" %}
+            <span class="doc-chip {% if persona.get('estado_cuenta') %}doc-ok{% else %}doc-miss{% endif %}">
+                {% if persona.get('estado_cuenta') %}✓{% else %}✗{% endif %} Estado de cuenta
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Referencias -->
+        {% if persona.get('referencias') %}
+        <div style="margin-top:12px;">
+            <div class="lbl" style="margin-bottom:5px;">Referencias personales</div>
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Nombre</th><th>Teléfono</th><th>Parentesco</th></tr>
+                </thead>
+                <tbody>
+                {% for ref in persona.referencias %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ ref.get('nombre') or '—' }}</td>
+                    <td>{{ ref.get('telefono') or '—' }}</td>
+                    <td>{{ ref.get('parentesco') or '—' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<!-- Footer -->
+<div class="print-footer">
+    <span>CookingBox Food Trailers · Pharr, TX · sales@cookingboxusa.com</span>
+    <span>EXP-{{ s.id }} · Generado {{ s.fecha[:10] if s.fecha else '' }}</span>
+</div>
+
+</body>
+</html>

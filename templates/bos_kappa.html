@@ -30,13 +30,13 @@
         <div class="card">
             <h2>Datos del cliente</h2>
             <label>Nombre</label>
-            <input type="text" name="cliente_nombre" id="cliente_nombre" value="{{ form.get('cliente_nombre','') }}" required>
+            <input type="text" name="cliente_nombre" id="cliente_nombre" value="{{ form.get('cliente_nombre') or prefill.get('cliente_nombre','') }}" required>
 
             <label>Location (dirección)</label>
-            <input type="text" name="cliente_location" id="cliente_location" value="{{ form.get('cliente_location','') }}" required>
+            <input type="text" name="cliente_location" id="cliente_location" value="{{ form.get('cliente_location') or prefill.get('cliente_location','') }}" required>
 
             <label>Teléfono</label>
-            <input type="text" name="cliente_telefono" id="cliente_telefono" value="{{ form.get('cliente_telefono','') }}" required>
+            <input type="text" name="cliente_telefono" id="cliente_telefono" value="{{ form.get('cliente_telefono') or prefill.get('cliente_telefono','') }}" required>
         </div>
 
         <div class="card">

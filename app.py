@@ -246,6 +246,16 @@ def solicitud_detalle(solicitud_id):
                            modelos=modelos, plazos=PLAZOS, parentescos=PARENTESCOS)
 
 
+@app.route("/solicitud/<solicitud_id>/imprimir")
+def solicitud_imprimir(solicitud_id):
+    solicitudes = load_solicitudes()
+    s = next((x for x in solicitudes if x["id"] == solicitud_id), None)
+    if s is None:
+        return redirect(url_for("solicitudes_lista"))
+    pendientes, completo = evaluar_requisitos(s)
+    return render_template("solicitud_print.html", s=s, pendientes=pendientes, completo=completo)
+
+
 @app.route("/uploads/<solicitud_id>/<filename>")
 def uploaded_file(solicitud_id, filename):
     folder = os.path.join(UPLOADS_DIR, solicitud_id)
@@ -415,6 +425,7 @@ def calcular_pago_mensual(monto_financiado):
     return round(semanal * 52 / 12, 2)
 
 
+@app.route("/simular", methods=["GET", "POST"])
 @app.route("/cotizador", methods=["GET", "POST"])
 def cotizador():
     cfg = load_json(COTIZADOR_CONFIG)
@@ -492,6 +503,20 @@ def bos_caja():
     resultado = None
     form = {}
 
+    # Pre-fill desde expediente si viene ?solicitud_id=
+    prefill = {}
+    sid_param = request.args.get("solicitud_id")
+    if sid_param:
+        s = next((x for x in solicitudes if x["id"] == sid_param), None)
+        if s:
+            ap = s.get("aplicante", {})
+            prefill = {
+                "cliente_nombre": ap.get("nombre", ""),
+                "cliente_direccion": ap.get("direccion", ""),
+                "cliente_telefono": ap.get("telefono", ""),
+                "fecha": datetime.now().strftime("%Y-%m-%d"),
+            }
+
     if request.method == "POST":
         form = request.form
         resultado = {
@@ -512,6 +537,7 @@ def bos_caja():
         }
 
     return render_template("bos_caja.html", resultado=resultado, form=form,
+                           prefill=prefill,
                            solicitudes=solicitudes,
                            hoy=datetime.now().strftime("%Y-%m-%d"))
 
@@ -522,6 +548,19 @@ def bos_kappa():
     solicitudes = load_solicitudes()
     resultado = None
     form = {}
+
+    # Pre-fill desde expediente si viene ?solicitud_id=
+    prefill = {}
+    sid_param = request.args.get("solicitud_id")
+    if sid_param:
+        s = next((x for x in solicitudes if x["id"] == sid_param), None)
+        if s:
+            ap = s.get("aplicante", {})
+            prefill = {
+                "cliente_nombre": ap.get("nombre", ""),
+                "cliente_location": ap.get("direccion_trailer", ap.get("direccion", "")),
+                "cliente_telefono": ap.get("telefono", ""),
+            }
 
     if request.method == "POST":
         form = request.form
@@ -543,6 +582,7 @@ def bos_kappa():
         }
 
     return render_template("bos_kappa.html", resultado=resultado, form=form,
+                           prefill=prefill,
                            cfg=cfg, solicitudes=solicitudes)
 
 

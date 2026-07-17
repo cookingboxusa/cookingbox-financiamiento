@@ -3,34 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CookingBox - Panel de Financiamiento</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Panel — CookingBox</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            padding-bottom: 60px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: #1a3a5c;
+            padding: 20px 24px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .header img { height: 48px; width: auto; }
+        .header-text h1 { font-size: 1rem; font-weight: 700; color: white; }
+        .header-text p  { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+        .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px; }
+
+        /* ── SECTION LABEL ── */
+        .section-label {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: #aeaeb2; margin: 22px 0 10px 4px;
+        }
+
+        /* ── MENU GRID ── */
+        .menu-grid { display: grid; gap: 10px; }
+        .menu-grid.cols2 { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 480px) { .menu-grid.cols2 { grid-template-columns: 1fr; } }
+
+        /* ── MENU ITEM ── */
+        .menu-item {
+            background: white;
+            border-radius: 14px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: #1d1d1f;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            transition: box-shadow 0.15s, transform 0.1s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            font-family: inherit;
+            text-align: left;
+        }
+        .menu-item:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        .menu-item:active { transform: translateY(0); }
+
+        .menu-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .icon-red    { background: #fdecea; }
+        .icon-navy   { background: #e8eef5; }
+        .icon-green  { background: #d5f5e3; }
+        .icon-yellow { background: #fef9e7; }
+        .icon-gray   { background: #f0f0f5; }
+        .icon-orange { background: #fdf2e9; }
+
+        .menu-text { flex: 1; }
+        .menu-title { font-size: 0.92rem; font-weight: 600; color: #1d1d1f; }
+        .menu-sub   { font-size: 0.75rem; color: #6e6e73; margin-top: 2px; }
+        .menu-arrow { font-size: 0.8rem; color: #c7c7cc; }
+
+        /* ── HIGHLIGHT ITEM (Nueva solicitud) ── */
+        .menu-item.highlight {
+            background: #1a3a5c;
+        }
+        .menu-item.highlight .menu-title { color: white; }
+        .menu-item.highlight .menu-sub   { color: rgba(255,255,255,0.55); }
+        .menu-item.highlight .menu-arrow { color: rgba(255,255,255,0.3); }
+        .menu-item.highlight .menu-icon  { background: rgba(255,255,255,0.15); }
+
+        /* ── PUBLIC BADGE ── */
+        .pub-badge {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; padding: 2px 7px; border-radius: 20px;
+            background: #d5f5e3; color: #1e8449; margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .footer {
+            text-align: center; color: #c7c7cc;
+            font-size: 0.75rem; margin-top: 32px;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>CookingBox Food Trailers<br>Panel de Financiamiento</h1>
 
-    <div class="card">
-        <h2>Solicitudes de clientes</h2>
-        <a class="btn" href="{{ url_for('solicitud_nueva') }}">+ Nueva solicitud</a>
-        <a class="btn btn-secondary" href="{{ url_for('solicitudes_lista') }}">Ver expedientes</a>
-        <a class="btn btn-secondary" href="{{ url_for('leads_lista') }}">Leads de página pública</a>
-        <a class="btn btn-secondary" href="{{ url_for('admin_clientes') }}">Accesos del portal de clientes</a>
+<div class="header">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="CookingBox">
+    <div class="header-text">
+        <h1>Panel de Administración</h1>
+        <p>CookingBox Food Trailers · Howe, TX</p>
+    </div>
+</div>
+
+<div class="wrap">
+
+    <!-- Solicitudes -->
+    <p class="section-label">Solicitudes de clientes</p>
+    <div class="menu-grid">
+        <a class="menu-item highlight" href="{{ url_for('solicitud_nueva') }}">
+            <div class="menu-icon">➕</div>
+            <div class="menu-text">
+                <div class="menu-title">Nueva solicitud</div>
+                <div class="menu-sub">Registrar un nuevo aplicante</div>
+            </div>
+            <span class="menu-arrow">›</span>
+        </a>
+        <a class="menu-item" href="{{ url_for('solicitudes_lista') }}">
+            <div class="menu-icon icon-navy">📁</div>
+            <div class="menu-text">
+                <div class="menu-title">Ver expedientes</div>
+                <div class="menu-sub">Todas las solicitudes activas</div>
+            </div>
+            <span class="menu-arrow">›</span>
+        </a>
+        <a class="menu-item" href="{{ url_for('admin_clientes') }}">
+            <div class="menu-icon icon-green">🔑</div>
+            <div class="menu-text">
+                <div class="menu-title">Accesos del portal</div>
+                <div class="menu-sub">Crear y enviar credenciales</div>
+            </div>
+            <span class="menu-arrow">›</span>
+        </a>
+        <a class="menu-item" href="{{ url_for('leads_lista') }}">
+            <div class="menu-icon icon-yellow">📊</div>
+            <div class="menu-text">
+                <div class="menu-title">Leads</div>
+                <div class="menu-sub">Interesados de página pública</div>
+            </div>
+            <span class="menu-arrow">›</span>
+        </a>
     </div>
 
-    <div class="card">
-        <h2>Documentos internos</h2>
-        <a class="btn" href="{{ url_for('cotizador') }}">Simulador de Financiamiento</a>
-        <a class="btn btn-secondary" href="{{ url_for('bos_caja') }}">BOS de la Caja</a>
-        <a class="btn btn-secondary" href="{{ url_for('bos_kappa') }}">BOS de Kappa</a>
+    <!-- Página pública -->
+    <p class="section-label">Página pública</p>
+    <div class="menu-grid cols2">
+        <a class="menu-item" href="/simular" target="_blank">
+            <div class="menu-icon icon-red">📱</div>
+            <div class="menu-text">
+                <div class="menu-title">Simulador <span class="pub-badge">público</span></div>
+                <div class="menu-sub">Compartir en redes: /simular</div>
+            </div>
+            <span class="menu-arrow">↗</span>
+        </a>
+        <a class="menu-item" href="{{ url_for('cliente_login') }}" target="_blank">
+            <div class="menu-icon icon-navy">🚪</div>
+            <div class="menu-text">
+                <div class="menu-title">Portal de aplicación</div>
+                <div class="menu-sub">Acceso con cuenta del cliente</div>
+            </div>
+            <span class="menu-arrow">↗</span>
+        </a>
     </div>
 
-    <div class="card">
-        <h2>Configuración</h2>
-        <a class="btn btn-secondary" href="{{ url_for('precios') }}">Editar precios de trailers</a>
+    <!-- Documentos internos -->
+    <p class="section-label">Documentos internos</p>
+    <div class="menu-grid">
+        <a class="menu-item" href="{{ url_for('cotizador') }}">
+            <div class="menu-icon icon-navy">🧮</div>
+            <div class="menu-text">
+                <div class="menu-title">Simulador de Financiamiento</div>
+                <div class="menu-sub">Calcular montos y pagos</div>
+            </div>
+            <span class="menu-arrow">›</span>
+        </a>
+        <div class="menu-grid cols2" style="margin:0;">
+            <a class="menu-item" href="{{ url_for('bos_caja') }}">
+                <div class="menu-icon icon-orange">📄</div>
+                <div class="menu-text">
+                    <div class="menu-title">BOS La Caja</div>
+                    <div class="menu-sub">Bill of Sale</div>
+                </div>
+                <span class="menu-arrow">›</span>
+            </a>
+            <a class="menu-item" href="{{ url_for('bos_kappa') }}">
+                <div class="menu-icon icon-gray">📋</div>
+                <div class="menu-text">
+                    <div class="menu-title">BOS Kappa</div>
+                    <div class="menu-sub">Bill of Sale</div>
+                </div>
+                <span class="menu-arrow">›</span>
+            </a>
+        </div>
     </div>
 
-    <p style="text-align:center; color:#999; font-size:0.85rem; margin-top:20px;">Somos CookingBox Food Trailers</p>
+    <!-- Configuración -->
+    <p class="section-label">Configuración</p>
+    <div class="menu-grid">
+        <a class="menu-item" href="{{ url_for('precios') }}">
+            <div class="menu-icon icon-gray">⚙️</div>
+            <div class="menu-text">
+                <div class="menu-title">Editar precios de trailers</div>
+                <div class="menu-sub">Actualizar catálogo y valores</div>
+            </div>
+            <span class="menu-arrow">›</span>
+        </a>
+    </div>
+
+    <p class="footer">CookingBox Food Trailers · sales@cookingboxusa.com</p>
+
 </div>
 </body>
 </html>

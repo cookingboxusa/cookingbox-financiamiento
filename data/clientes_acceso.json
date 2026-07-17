@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "0cda02c7",
+    "solicitud_id": "4665f5af",
+    "nombre": "Juan Perez",
+    "usuario": "juan490f",
+    "clave_hash": "scrypt:32768:8:1$CM5500cmlER0mUM2$8f0525c530ae3d363051364f79142f06541aa47a4525fa5706fc9ca0e7c6d99e6a1b8f025ccc896aa578449ca9111db869e71e3d0f46942d6dcf9e4d9ef1e447",
+    "clave_visible": "wzBttE99",
+    "creado": "2026-07-02T19:20:10"
+  }
+]
