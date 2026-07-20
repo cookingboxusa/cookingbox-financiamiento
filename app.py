@@ -203,11 +203,26 @@ def solicitud_nueva():
         except ValueError:
             down_payment = 0
 
+        def parse_money(key):
+            try:
+                return float(request.form.get(key, "").replace(",", "") or 0) or None
+            except ValueError:
+                return None
+
         sid = str(uuid.uuid4())[:8]
         solicitud = {
             "id": sid,
             "fecha": datetime.now().isoformat(timespec="seconds"),
             "down_payment": down_payment,
+            "condiciones_pago": {
+                "trailer_desc": request.form.get("trailer_desc", "").strip() or None,
+                "valor_venta": parse_money("valor_venta"),
+                "pago_inicial": parse_money("pago_inicial"),
+                "saldo_down": parse_money("saldo_down"),
+                "fecha_saldo_down": request.form.get("fecha_saldo_down", "").strip() or None,
+                "monto_financiado": parse_money("monto_financiado"),
+                "pago_mensual": parse_money("pago_mensual"),
+            },
             "aplicante": persona_desde_form(request.form, request.files, "aplicante", sid),
             "coaplicante": persona_desde_form(request.form, request.files, "coaplicante", sid),
         }
@@ -232,6 +247,22 @@ def solicitud_detalle(solicitud_id):
             s["down_payment"] = float(request.form.get("down_payment", "0"))
         except ValueError:
             s["down_payment"] = 0
+
+        def parse_money(key):
+            try:
+                return float(request.form.get(key, "").replace(",", "") or 0) or None
+            except ValueError:
+                return None
+
+        s["condiciones_pago"] = {
+            "trailer_desc": request.form.get("trailer_desc", "").strip() or None,
+            "valor_venta": parse_money("valor_venta"),
+            "pago_inicial": parse_money("pago_inicial"),
+            "saldo_down": parse_money("saldo_down"),
+            "fecha_saldo_down": request.form.get("fecha_saldo_down", "").strip() or None,
+            "monto_financiado": parse_money("monto_financiado"),
+            "pago_mensual": parse_money("pago_mensual"),
+        }
         s["aplicante"] = persona_desde_form(
             request.form, request.files, "aplicante", solicitud_id, s.get("aplicante"))
         s["coaplicante"] = persona_desde_form(

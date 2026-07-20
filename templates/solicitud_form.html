@@ -331,6 +331,42 @@
             </div>
         </div>
 
+        <!-- Condiciones de Financiamiento -->
+        {% set cp = solicitud.condiciones_pago if solicitud and solicitud.get('condiciones_pago') else {} %}
+        <div class="card" style="padding:14px 20px;">
+            <p class="card-label" style="margin-bottom:10px;">Condiciones de Financiamiento <span style="font-weight:400;color:#aeaeb2;letter-spacing:0;">(del cotizador)</span></p>
+            <div class="grid2">
+                <div class="field">
+                    <label>Descripción del trailer</label>
+                    <input type="text" name="trailer_desc" value="{{ cp.get('trailer_desc','') }}" placeholder="Ej: Food Trailer 8x16">
+                </div>
+                <div class="field">
+                    <label>Valor total de venta ($)</label>
+                    <input type="number" step="0.01" min="0" name="valor_venta" value="{{ cp.get('valor_venta','') }}" placeholder="0.00">
+                </div>
+                <div class="field">
+                    <label>Pago para iniciar proyecto ($)</label>
+                    <input type="number" step="0.01" min="0" name="pago_inicial" value="{{ cp.get('pago_inicial','') }}" placeholder="0.00">
+                </div>
+                <div class="field">
+                    <label>Saldo restante del down ($)</label>
+                    <input type="number" step="0.01" min="0" name="saldo_down" value="{{ cp.get('saldo_down','') }}" placeholder="0.00">
+                </div>
+                <div class="field">
+                    <label>Fecha / condición del saldo</label>
+                    <input type="text" name="fecha_saldo_down" value="{{ cp.get('fecha_saldo_down','') }}" placeholder="Ej: Al momento de la entrega">
+                </div>
+                <div class="field">
+                    <label>Monto a financiar ($)</label>
+                    <input type="number" step="0.01" min="0" name="monto_financiado" value="{{ cp.get('monto_financiado','') }}" placeholder="0.00">
+                </div>
+                <div class="field">
+                    <label>Pago mensual — 36 meses ($)</label>
+                    <input type="number" step="0.01" min="0" name="pago_mensual" value="{{ cp.get('pago_mensual','') }}" placeholder="0.00">
+                </div>
+            </div>
+        </div>
+
         <!-- TABS Aplicante / Coaplicante -->
         <div class="tab-bar">
             <button type="button" class="tab-btn active" id="tab-btn-aplicante"

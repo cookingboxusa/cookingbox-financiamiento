@@ -136,7 +136,8 @@
 <span class="status-pill pill-pend">⚠ Pendiente: {{ pendientes | join(' · ') }}</span>
 {% endif %}
 
-<!-- Down Payment -->
+<!-- Financiamiento -->
+{% set cp = s.condiciones_pago if s.get('condiciones_pago') else {} %}
 <div class="section">
     <div class="section-head">Financiamiento</div>
     <div class="section-body">
@@ -154,8 +155,87 @@
                 <div class="val">{{ s.fecha[:10] if s.fecha else '—' }}</div>
             </div>
         </div>
+        {% if cp.get('trailer_desc') or cp.get('valor_venta') or cp.get('monto_financiado') %}
+        <div class="row" style="margin-top:6px;">
+            {% if cp.get('trailer_desc') %}
+            <div class="col col2">
+                <div class="lbl">Trailer</div>
+                <div class="val">{{ cp.trailer_desc }}</div>
+            </div>
+            {% endif %}
+            {% if cp.get('valor_venta') %}
+            <div class="col">
+                <div class="lbl">Valor total de venta</div>
+                <div class="val">${{ '{:,.2f}'.format(cp.valor_venta) }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<!-- Condiciones de Pago -->
+{% if cp.get('pago_inicial') or cp.get('saldo_down') or cp.get('monto_financiado') %}
+<div class="section">
+    <div class="section-head">Condiciones de Pago</div>
+    <div class="section-body">
+        <div class="row">
+            {% if cp.get('pago_inicial') %}
+            <div class="col">
+                <div class="lbl">Pago para iniciar proyecto</div>
+                <div class="val big" style="color:#1e8449;">${{ '{:,.2f}'.format(cp.pago_inicial) }}</div>
+            </div>
+            {% endif %}
+            {% if cp.get('saldo_down') %}
+            <div class="col">
+                <div class="lbl">Saldo restante del down</div>
+                <div class="val big">${{ '{:,.2f}'.format(cp.saldo_down) }}</div>
+            </div>
+            {% endif %}
+            {% if cp.get('monto_financiado') %}
+            <div class="col">
+                <div class="lbl">Monto a financiar</div>
+                <div class="val big" style="color:#1a3a5c;">${{ '{:,.2f}'.format(cp.monto_financiado) }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% if cp.get('fecha_saldo_down') or cp.get('pago_mensual') %}
+        <div class="row">
+            {% if cp.get('fecha_saldo_down') %}
+            <div class="col col2">
+                <div class="lbl">Condición de pago del saldo</div>
+                <div class="val">{{ cp.fecha_saldo_down }}</div>
+            </div>
+            {% endif %}
+            {% if cp.get('pago_mensual') %}
+            <div class="col">
+                <div class="lbl">Pago mensual — 36 meses</div>
+                <div class="val">${{ '{:,.2f}'.format(cp.pago_mensual) }}/mes</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Leyenda de producción -->
+        <div style="margin-top:14px; padding:10px 12px; background:#fff8e1; border-left:3px solid #f9a825; border-radius:6px; font-size:11px; color:#5d4037;">
+            ⚠️ <strong>Nota importante:</strong> Una vez que se refleje el pago del down payment, la orden entra al programa de producción.
+        </div>
+
+        <!-- Firma -->
+        <div style="margin-top:22px; display:flex; gap:40px;">
+            <div style="flex:1;">
+                <div style="border-bottom:1px solid #1d1d1f; height:36px;"></div>
+                <div class="lbl" style="margin-top:5px;">Firma del aplicante</div>
+                <div style="font-size:10px; color:#aeaeb2; margin-top:2px;">{{ s.aplicante.get('nombre') or '' }}</div>
+            </div>
+            <div style="flex:1;">
+                <div style="border-bottom:1px solid #1d1d1f; height:36px;"></div>
+                <div class="lbl" style="margin-top:5px;">Firma CookingBox / Representante</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Personas -->
 {% for rol, persona in [("Aplicante Principal", s.aplicante), ("Coaplicante / Socio", s.coaplicante)] %}
