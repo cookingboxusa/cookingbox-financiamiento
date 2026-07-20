@@ -316,6 +316,16 @@
 </div>
 {% endfor %}
 
+<!-- Botón R2O (solo en pantalla, no imprime) -->
+<div class="no-print" style="margin-top:24px; text-align:center;">
+    <a href="{{ url_for('solicitud_r2o', solicitud_id=s.id) }}"
+       style="display:inline-block; background:#1a3a5c; color:white; text-decoration:none;
+              border-radius:12px; padding:14px 28px; font-size:0.95rem; font-weight:700;
+              box-shadow:0 4px 18px rgba(0,0,0,0.18);">
+        📋 Cargar documentos R2O para esta solicitud
+    </a>
+</div>
+
 <!-- Footer -->
 <div class="print-footer">
     <span>CookingBox Food Trailers · Pharr, TX · sales@cookingboxusa.com</span>

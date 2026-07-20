@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Expediente R2O — {{ s.id }} · CookingBox</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy: #1a3a5c;
+            --navy-dark: #0f2236;
+            --red: #c0392b;
+            --green: #1e8449;
+            --ground: #f5f2ee;
+            --card: #ffffff;
+            --border: #e5e5ea;
+            --text: #1d1d1f;
+            --muted: #6e6e73;
+            --hint: #aeaeb2;
+            --warn-bg: #fff8e1;
+            --warn-border: #f9a825;
+            --ok-bg: #d5f5e3;
+            --ok-text: #1e8449;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            background: var(--ground);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* ── HEADER ── */
+        .top-bar {
+            background: var(--navy-dark);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            height: 56px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .top-bar img { height: 34px; width: auto; }
+        .top-bar-title { color: white; font-size: 0.88rem; font-weight: 600; }
+        .top-bar-sub { color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 1px; }
+        .top-bar-id {
+            margin-left: auto;
+            background: var(--red);
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── STEPPER ── */
+        .stepper-wrap {
+            background: var(--navy);
+            padding: 18px 20px 0;
+            overflow-x: auto;
+        }
+        .stepper {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            max-width: 700px;
+            margin: 0 auto;
+            padding-bottom: 0;
+        }
+        .step-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            padding-bottom: 16px;
+        }
+        .step-item::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: calc(50% + 16px);
+            right: calc(-50% + 16px);
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+        }
+        .step-item:last-child::before { display: none; }
+        .step-circle {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1;
+            transition: all 0.2s;
+        }
+        .step-item.active .step-circle {
+            background: white;
+            border-color: white;
+            color: var(--navy);
+        }
+        .step-item.done .step-circle {
+            background: var(--green);
+            border-color: var(--green);
+            color: white;
+        }
+        .step-item.done::before { background: rgba(255,255,255,0.45); }
+        .step-label {
+            font-size: 0.62rem;
+            color: rgba(255,255,255,0.45);
+            margin-top: 5px;
+            text-align: center;
+            line-height: 1.3;
+            max-width: 72px;
+        }
+        .step-item.active .step-label { color: white; font-weight: 600; }
+        .step-item.done .step-label { color: rgba(255,255,255,0.7); }
+
+        /* ── WRAP ── */
+        .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 0; }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .card-head {
+            background: var(--navy);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-head .step-num-badge {
+            background: white;
+            color: var(--navy);
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card-body { padding: 18px; }
+
+        /* ── FIELDS ── */
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 500px) { .grid2 { grid-template-columns: 1fr; } }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--hint);
+        }
+        .field label .req { color: var(--red); margin-left: 2px; }
+        .field label .opt { color: var(--hint); font-weight: 400; margin-left: 4px; text-transform: none; letter-spacing: 0; font-size: 0.7rem; }
+        .field input[type="text"],
+        .field input[type="email"],
+        .field input[type="tel"],
+        .field select {
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text);
+            transition: border-color 0.15s;
+            background: white;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: var(--navy);
+        }
+        .field input.error { border-color: var(--red); }
+        .field .field-hint {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .field .field-hint.warn { color: #b7770d; }
+
+        /* ── FILE UPLOAD ── */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 18px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .upload-zone:hover { border-color: var(--navy); background: #f0f4f8; }
+        .upload-zone.has-file { border-color: var(--green); border-style: solid; background: #f0faf4; }
+        .upload-zone input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .upload-icon { font-size: 1.6rem; margin-bottom: 6px; }
+        .upload-label { font-size: 0.82rem; font-weight: 600; color: var(--navy); }
+        .upload-sub { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+        .upload-filename { font-size: 0.78rem; color: var(--green); font-weight: 600; margin-top: 4px; }
+        .upload-existing {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--ok-bg);
+            color: var(--ok-text);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+        }
+
+        /* ── WARN BOX ── */
+        .warn-box {
+            background: var(--warn-bg);
+            border-left: 3px solid var(--warn-border);
+            border-radius: 6px;
+            padding: 10px 13px;
+            font-size: 0.8rem;
+            color: #5d4037;
+            margin-bottom: 14px;
+        }
+
+        /* ── REFERENCIA ROW ── */
+        .ref-block {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .ref-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+        .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 560px) { .grid3 { grid-template-columns: 1fr; } }
+
+        /* ── PHONE BADGE ── */
+        .phone-wrap { position: relative; }
+        .phone-flag {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            font-size: 0.72rem; color: var(--muted);
+        }
+        .phone-ok .phone-flag { color: var(--green); font-weight: 700; }
+        .phone-warn .phone-flag { color: var(--red); }
+
+        /* ── STEP PANELS ── */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; }
+
+        /* ── NAV BUTTONS ── */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+        .btn {
+            flex: 1;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .btn:hover { opacity: 0.88; }
+        .btn-back { background: #f0f0f5; color: var(--navy); }
+        .btn-next { background: var(--navy); color: white; }
+        .btn-submit { background: var(--green); color: white; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── SECTION DIVIDER ── */
+        .section-div {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--hint);
+            padding: 8px 0 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── SUCCESS ── */
+        .success-banner {
+            background: var(--ok-bg);
+            border: 1.5px solid #a9dfbf;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: var(--green);
+        }
+        .success-banner h2 { font-size: 1.2rem; margin-bottom: 6px; }
+        .success-banner p { font-size: 0.85rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="CookingBox">
+    <div>
+        <div class="top-bar-title">Carga de Documentos — Modo R2O</div>
+        <div class="top-bar-sub">{{ s.aplicante.get('nombre') or 'Sin nombre' }}</div>
+    </div>
+    <div class="top-bar-id">EXP-{{ s.id }}</div>
+</div>
+
+<!-- Stepper -->
+<div class="stepper-wrap">
+    <div class="stepper">
+        {% for label in ['Datos del Cliente', 'Docs Aplicante', 'Referencias Apl.', 'Docs Coaplicante', 'Referencias Co.'] %}
+        <div class="step-item {% if loop.index == 1 %}active{% endif %}" id="step-tab-{{ loop.index }}" onclick="goStep({{ loop.index }})">
+            <div class="step-circle" id="step-circle-{{ loop.index }}">{{ loop.index }}</div>
+            <div class="step-label">{{ label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="wrap">
+<form method="POST" enctype="multipart/form-data" id="r2oForm" novalidate>
+
+<!-- ═══════════════════════════════════════════════════════════ PASO 1 -->
+<div class="step-panel active" id="panel-1">
+    <div class="card">
+        <div class="card-head"><span class="step-num-badge">1</span> Datos Personales del Cliente (Aplicante)</div>
+        <div class="card-body">
+            <div class="warn-box">
+                ℹ️ Confirma o actualiza los datos del cliente. Si ya vienen del cotizador, verifica que sean correctos.
+            </div>
+            <div class="grid2">
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label>Nombre completo <span class="req">*</span></label>
+                    <input type="text" name="aplicante_nombre" id="apl_nombre"
+                           value="{{ s.aplicante.get('nombre','') }}"
+                           placeholder="Nombre y apellidos completos" required>
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label>Dirección <span class="req">*</span></label>
+                    <input type="text" name="aplicante_direccion" id="apl_dir"
+                           value="{{ s.aplicante.get('direccion','') }}"
+                           placeholder="Calle, ciudad, estado, código postal" required>
+                </div>
+                <div class="field">
+                    <label>Teléfono <span class="req">*</span></label>
+                    <div class="phone-wrap">
+                        <input type="tel" name="aplicante_telefono" id="apl_tel"
+                               value="{{ s.aplicante.get('telefono','') }}"
+                               placeholder="+1 (000) 000-0000" required
+                               oninput="checkPhone(this, 'apl_tel_flag')">
+                        <span class="phone-flag" id="apl_tel_flag"></span>
+                    </div>
+                    <div class="field-hint">Incluye clave lada. EE.UU: +1 · México: +52 · Otro país: +código</div>
+                </div>
+                <div class="field">
+                    <label>Correo electrónico <span class="req">*</span></label>
+                    <input type="email" name="aplicante_email" id="apl_email"
+                           value="{{ s.aplicante.get('email','') }}"
+                           placeholder="correo@email.com" required>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PASO 2 -->
+<div class="step-panel" id="panel-2">
+    <div class="card">
+        <div class="card-head"><span class="step-num-badge">2</span> Documentos del Aplicante</div>
+        <div class="card-body">
+
+            <div class="section-div">Identificación oficial vigente</div>
+            <div class="warn-box">
+                ⚠️ Verifica que el ID no esté vencido antes de subir la foto. Revisa la fecha de vencimiento.
+            </div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Foto del ID vigente <span class="req">*</span></label>
+                {% if s.aplicante.get('id_doc') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.aplicante.id_doc }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-apl-id" onclick="document.getElementById('file-apl-id').click()">
+                    <input type="file" name="aplicante_id_doc" id="file-apl-id" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-apl-id','fname-apl-id')">
+                    <div class="upload-icon">🪪</div>
+                    <div class="upload-label">Toca para cargar ID</div>
+                    <div class="upload-sub">JPG, PNG, HEIC o PDF — máx. 10 MB</div>
+                    <div class="upload-filename" id="fname-apl-id"></div>
+                </div>
+            </div>
+
+            <div class="section-div">Comprobante de domicilio</div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Comprobante de domicilio <span class="req">*</span></label>
+                {% if s.aplicante.get('comprobante') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.aplicante.comprobante }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-apl-comp" onclick="document.getElementById('file-apl-comp').click()">
+                    <input type="file" name="aplicante_comprobante" id="file-apl-comp" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-apl-comp','fname-apl-comp')">
+                    <div class="upload-icon">🏠</div>
+                    <div class="upload-label">Toca para cargar comprobante</div>
+                    <div class="upload-sub">Recibo de luz, agua, gas, estado de cuenta bancario</div>
+                    <div class="upload-filename" id="fname-apl-comp"></div>
+                </div>
+            </div>
+
+            <div class="section-div">Perfil de red social</div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Captura del perfil social <span class="req">*</span></label>
+                {% if s.aplicante.get('perfil_social_doc') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.aplicante.perfil_social_doc }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-apl-social" onclick="document.getElementById('file-apl-social').click()">
+                    <input type="file" name="aplicante_perfil_social" id="file-apl-social" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-apl-social','fname-apl-social')">
+                    <div class="upload-icon">📱</div>
+                    <div class="upload-label">Captura del perfil (Facebook, Instagram, etc.)</div>
+                    <div class="upload-sub">Foto de pantalla donde se vea nombre y foto de perfil</div>
+                    <div class="upload-filename" id="fname-apl-social"></div>
+                </div>
+                <div class="field" style="margin-top:8px;">
+                    <label>Usuario / URL del perfil <span class="opt">(opcional)</span></label>
+                    <input type="text" name="aplicante_red_social"
+                           value="{{ s.aplicante.get('red_social','') }}"
+                           placeholder="@usuario o https://facebook.com/...">
+                </div>
+            </div>
+
+            <div class="section-div">Comprobante de anticipo en banco</div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Comprobante de anticipo / down payment <span class="req">*</span></label>
+                {% if s.aplicante.get('estado_cuenta') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.aplicante.estado_cuenta }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-apl-banco" onclick="document.getElementById('file-apl-banco').click()">
+                    <input type="file" name="aplicante_estado_cuenta" id="file-apl-banco" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-apl-banco','fname-apl-banco')">
+                    <div class="upload-icon">🏦</div>
+                    <div class="upload-label">Estado de cuenta o captura del banco</div>
+                    <div class="upload-sub">Debe mostrar el saldo disponible o el movimiento del anticipo</div>
+                    <div class="upload-filename" id="fname-apl-banco"></div>
+                </div>
+            </div>
+
+            <div class="section-div">Documento LLC <span style="font-weight:400; text-transform:none; letter-spacing:0; color:var(--hint); font-size:0.72rem;">(si aplica)</span></div>
+            <div class="field">
+                <label>Documentos de LLC <span class="opt">opcional</span></label>
+                {% if s.aplicante.get('llc_doc') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.aplicante.llc_doc }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-apl-llc" onclick="document.getElementById('file-apl-llc').click()">
+                    <input type="file" name="aplicante_llc" id="file-apl-llc" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-apl-llc','fname-apl-llc')">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-label">Artículo de organización / Certificado LLC</div>
+                    <div class="upload-sub">Solo si el cliente ya tiene LLC constituida</div>
+                    <div class="upload-filename" id="fname-apl-llc"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PASO 3 -->
+<div class="step-panel" id="panel-3">
+    <div class="card">
+        <div class="card-head"><span class="step-num-badge">3</span> 5 Referencias Personales — Aplicante</div>
+        <div class="card-body">
+            <div class="warn-box">
+                📞 Verifica que todos los teléfonos tengan clave lada. EE.UU: +1 · México: +52 · Otro país: incluye +código del país.
+            </div>
+            {% set refs_apl = s.aplicante.get('referencias', [{}]*5) %}
+            {% for i in range(1, 6) %}
+            {% set ref = refs_apl[i-1] if i-1 < refs_apl|length else {} %}
+            <div class="ref-block">
+                <div class="ref-num">Referencia {{ i }}</div>
+                <div class="grid3">
+                    <div class="field">
+                        <label>Nombre completo <span class="req">*</span></label>
+                        <input type="text" name="aplicante_ref{{ i }}_nombre"
+                               value="{{ ref.get('nombre','') }}"
+                               placeholder="Nombre y apellido" required>
+                    </div>
+                    <div class="field">
+                        <label>Teléfono <span class="req">*</span></label>
+                        <div class="phone-wrap">
+                            <input type="tel" name="aplicante_ref{{ i }}_telefono"
+                                   value="{{ ref.get('telefono','') }}"
+                                   placeholder="+1 (000) 000-0000" required
+                                   oninput="checkPhone(this, 'apl-ref{{ i }}-flag')">
+                            <span class="phone-flag" id="apl-ref{{ i }}-flag"></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Parentesco <span class="req">*</span></label>
+                        <select name="aplicante_ref{{ i }}_parentesco" required>
+                            <option value="">— Selecciona —</option>
+                            {% for p in parentescos %}
+                            <option value="{{ p }}" {% if ref.get('parentesco') == p %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PASO 4 -->
+<div class="step-panel" id="panel-4">
+    <div class="card">
+        <div class="card-head"><span class="step-num-badge">4</span> Documentos del Coaplicante / Socio</div>
+        <div class="card-body">
+
+            <div class="warn-box">
+                ℹ️ Completa la información del coaplicante o socio del negocio.
+            </div>
+
+            <div class="field" style="margin-bottom:14px;">
+                <label>Nombre completo del coaplicante <span class="req">*</span></label>
+                <input type="text" name="coaplicante_nombre"
+                       value="{{ s.coaplicante.get('nombre','') }}"
+                       placeholder="Nombre y apellidos" required>
+            </div>
+
+            <div class="section-div">Identificación oficial vigente</div>
+            <div class="warn-box">
+                ⚠️ Verifica que el ID del coaplicante tampoco esté vencido.
+            </div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Foto del ID vigente (coaplicante) <span class="req">*</span></label>
+                {% if s.coaplicante.get('id_doc') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.coaplicante.id_doc }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-co-id" onclick="document.getElementById('file-co-id').click()">
+                    <input type="file" name="coaplicante_id_doc" id="file-co-id" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-co-id','fname-co-id')">
+                    <div class="upload-icon">🪪</div>
+                    <div class="upload-label">Toca para cargar ID del coaplicante</div>
+                    <div class="upload-sub">JPG, PNG, HEIC o PDF — máx. 10 MB</div>
+                    <div class="upload-filename" id="fname-co-id"></div>
+                </div>
+            </div>
+
+            <div class="section-div">Comprobante de domicilio</div>
+            <div class="field" style="margin-bottom:16px;">
+                <label>Comprobante de domicilio (coaplicante) <span class="req">*</span></label>
+                {% if s.coaplicante.get('comprobante') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.coaplicante.comprobante }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-co-comp" onclick="document.getElementById('file-co-comp').click()">
+                    <input type="file" name="coaplicante_comprobante" id="file-co-comp" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-co-comp','fname-co-comp')">
+                    <div class="upload-icon">🏠</div>
+                    <div class="upload-label">Toca para cargar comprobante</div>
+                    <div class="upload-sub">Recibo de luz, agua, gas, estado de cuenta bancario</div>
+                    <div class="upload-filename" id="fname-co-comp"></div>
+                </div>
+            </div>
+
+            <div class="section-div">Perfil de red social</div>
+            <div class="field">
+                <label>Captura del perfil social (coaplicante) <span class="req">*</span></label>
+                {% if s.coaplicante.get('perfil_social_doc') %}
+                <div class="upload-existing">✓ Ya cargado: {{ s.coaplicante.perfil_social_doc }}</div>
+                {% endif %}
+                <div class="upload-zone" id="zone-co-social" onclick="document.getElementById('file-co-social').click()">
+                    <input type="file" name="coaplicante_perfil_social" id="file-co-social" accept=".jpg,.jpeg,.png,.heic,.pdf"
+                           onchange="previewFile(this,'zone-co-social','fname-co-social')">
+                    <div class="upload-icon">📱</div>
+                    <div class="upload-label">Captura del perfil del coaplicante</div>
+                    <div class="upload-sub">Foto de pantalla donde se vea nombre y foto de perfil</div>
+                    <div class="upload-filename" id="fname-co-social"></div>
+                </div>
+                <div class="field" style="margin-top:8px;">
+                    <label>Usuario / URL del perfil <span class="opt">(opcional)</span></label>
+                    <input type="text" name="coaplicante_red_social"
+                           value="{{ s.coaplicante.get('red_social','') }}"
+                           placeholder="@usuario o https://facebook.com/...">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PASO 5 -->
+<div class="step-panel" id="panel-5">
+    <div class="card">
+        <div class="card-head"><span class="step-num-badge">5</span> 5 Referencias Personales — Coaplicante</div>
+        <div class="card-body">
+            <div class="warn-box">
+                📞 Verifica que todos los teléfonos tengan clave lada. EE.UU: +1 · México: +52 · Otro país: incluye +código del país.
+            </div>
+            {% set refs_co = s.coaplicante.get('referencias', [{}]*5) %}
+            {% for i in range(1, 6) %}
+            {% set ref = refs_co[i-1] if i-1 < refs_co|length else {} %}
+            <div class="ref-block">
+                <div class="ref-num">Referencia {{ i }}</div>
+                <div class="grid3">
+                    <div class="field">
+                        <label>Nombre completo <span class="req">*</span></label>
+                        <input type="text" name="coaplicante_ref{{ i }}_nombre"
+                               value="{{ ref.get('nombre','') }}"
+                               placeholder="Nombre y apellido" required>
+                    </div>
+                    <div class="field">
+                        <label>Teléfono <span class="req">*</span></label>
+                        <div class="phone-wrap">
+                            <input type="tel" name="coaplicante_ref{{ i }}_telefono"
+                                   value="{{ ref.get('telefono','') }}"
+                                   placeholder="+1 (000) 000-0000" required
+                                   oninput="checkPhone(this, 'co-ref{{ i }}-flag')">
+                            <span class="phone-flag" id="co-ref{{ i }}-flag"></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Parentesco <span class="req">*</span></label>
+                        <select name="coaplicante_ref{{ i }}_parentesco" required>
+                            <option value="">— Selecciona —</option>
+                            {% for p in parentescos %}
+                            <option value="{{ p }}" {% if ref.get('parentesco') == p %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Submit hint -->
+    <div class="warn-box" style="border-left-color: var(--green); background: var(--ok-bg); color: var(--green);">
+        ✅ Revisa que todos los pasos estén completos antes de guardar el expediente R2O.
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bar">
+    <button type="button" class="btn btn-back" id="btnBack" onclick="prevStep()" style="display:none;">← Anterior</button>
+    <button type="button" class="btn btn-next" id="btnNext" onclick="nextStep()">Siguiente →</button>
+    <button type="submit" class="btn btn-submit" id="btnSave" style="display:none;">💾 Guardar expediente R2O</button>
+</div>
+
+</form>
+</div>
+
+<script>
+let currentStep = 1;
+const TOTAL = 5;
+
+function goStep(n) {
+    if (n < 1 || n > TOTAL) return;
+    // hide all
+    for (let i = 1; i <= TOTAL; i++) {
+        document.getElementById('panel-' + i).classList.remove('active');
+        const tab = document.getElementById('step-tab-' + i);
+        tab.classList.remove('active');
+        if (i < n) tab.classList.add('done'); else tab.classList.remove('done');
+        const circle = document.getElementById('step-circle-' + i);
+        if (i < n) circle.textContent = '✓'; else circle.textContent = i;
+    }
+    document.getElementById('panel-' + n).classList.add('active');
+    document.getElementById('step-tab-' + n).classList.add('active');
+    document.getElementById('step-circle-' + n).textContent = n;
+    currentStep = n;
+    updateNav();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+    if (!validateStep(currentStep)) return;
+    if (currentStep < TOTAL) goStep(currentStep + 1);
+}
+
+function prevStep() {
+    if (currentStep > 1) goStep(currentStep - 1);
+}
+
+function updateNav() {
+    document.getElementById('btnBack').style.display = currentStep > 1 ? '' : 'none';
+    document.getElementById('btnNext').style.display = currentStep < TOTAL ? '' : 'none';
+    document.getElementById('btnSave').style.display = currentStep === TOTAL ? '' : 'none';
+}
+
+function validateStep(step) {
+    const panel = document.getElementById('panel-' + step);
+    const required = panel.querySelectorAll('[required]');
+    let ok = true;
+    required.forEach(el => {
+        el.classList.remove('error');
+        if (!el.value.trim()) {
+            el.classList.add('error');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            ok = false;
+        }
+    });
+    if (!ok) {
+        alert('Por favor completa todos los campos requeridos antes de continuar.');
+    }
+    return ok;
+}
+
+function previewFile(input, zoneId, fnameId) {
+    const zone = document.getElementById(zoneId);
+    const fname = document.getElementById(fnameId);
+    if (input.files && input.files[0]) {
+        zone.classList.add('has-file');
+        fname.textContent = '✓ ' + input.files[0].name;
+    }
+}
+
+function checkPhone(input, flagId) {
+    const val = input.value.trim();
+    const flag = document.getElementById(flagId);
+    if (!flag) return;
+    const wrap = input.parentElement;
+    wrap.classList.remove('phone-ok', 'phone-warn');
+    if (!val) { flag.textContent = ''; return; }
+
+    if (val.startsWith('+')) {
+        wrap.classList.add('phone-ok');
+        if (val.startsWith('+1')) flag.textContent = '✓ EE.UU/CA';
+        else if (val.startsWith('+52')) flag.textContent = '✓ México';
+        else flag.textContent = '✓ Intl.';
+    } else {
+        wrap.classList.add('phone-warn');
+        flag.textContent = '⚠ Falta clave lada';
+    }
+}
+
+// Init phone checks for pre-filled values
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[type="tel"]').forEach(el => {
+        if (el.value) el.dispatchEvent(new Event('input'));
+    });
+    updateNav();
+});
+</script>
+</body>
+</html>

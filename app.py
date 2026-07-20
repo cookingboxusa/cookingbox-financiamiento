@@ -287,6 +287,61 @@ def solicitud_imprimir(solicitud_id):
     return render_template("solicitud_print.html", s=s, pendientes=pendientes, completo=completo)
 
 
+@app.route("/solicitud/<solicitud_id>/r2o", methods=["GET", "POST"])
+def solicitud_r2o(solicitud_id):
+    solicitudes = load_solicitudes()
+    s = next((x for x in solicitudes if x["id"] == solicitud_id), None)
+    if s is None:
+        return redirect(url_for("solicitudes_lista"))
+
+    if request.method == "POST":
+        # Datos personales aplicante
+        ap = s.setdefault("aplicante", {})
+        ap["nombre"]    = request.form.get("aplicante_nombre", "").strip()
+        ap["direccion"] = request.form.get("aplicante_direccion", "").strip()
+        ap["telefono"]  = request.form.get("aplicante_telefono", "").strip()
+        ap["email"]     = request.form.get("aplicante_email", "").strip()
+        ap["red_social"]= request.form.get("aplicante_red_social", "").strip()
+
+        # Documentos aplicante
+        for campo in ["aplicante_id_doc", "aplicante_comprobante",
+                      "aplicante_estado_cuenta"]:
+            f = save_upload(request.files.get(campo), solicitud_id, campo)
+            key = campo.replace("aplicante_", "")
+            if f:
+                ap[key] = f
+
+        f = save_upload(request.files.get("aplicante_perfil_social"), solicitud_id, "aplicante_perfil_social")
+        if f: ap["perfil_social_doc"] = f
+
+        f = save_upload(request.files.get("aplicante_llc"), solicitud_id, "aplicante_llc")
+        if f: ap["llc_doc"] = f
+
+        # Referencias aplicante (5)
+        ap["referencias"] = referencias_desde_form(request.form, "aplicante")
+
+        # Coaplicante
+        co = s.setdefault("coaplicante", {})
+        co["nombre"]    = request.form.get("coaplicante_nombre", "").strip()
+        co["red_social"]= request.form.get("coaplicante_red_social", "").strip()
+
+        for campo in ["coaplicante_id_doc", "coaplicante_comprobante"]:
+            f = save_upload(request.files.get(campo), solicitud_id, campo)
+            key = campo.replace("coaplicante_", "")
+            if f: co[key] = f
+
+        f = save_upload(request.files.get("coaplicante_perfil_social"), solicitud_id, "coaplicante_perfil_social")
+        if f: co["perfil_social_doc"] = f
+
+        # Referencias coaplicante (5)
+        co["referencias"] = referencias_desde_form(request.form, "coaplicante")
+
+        save_solicitudes(solicitudes)
+        return redirect(url_for("solicitud_r2o", solicitud_id=solicitud_id))
+
+    return render_template("r2o_form.html", s=s, parentescos=PARENTESCOS)
+
+
 @app.route("/uploads/<solicitud_id>/<filename>")
 def uploaded_file(solicitud_id, filename):
     folder = os.path.join(UPLOADS_DIR, solicitud_id)
