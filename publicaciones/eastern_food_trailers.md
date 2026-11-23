@@ -4,7 +4,7 @@ Página alterna dedicada a la venta de **food trailers nuevos y seminuevos**.
 Versión bilingüe (ES / EN) lista para Facebook, Instagram y Marketplace.
 
 Antes de publicar, reemplaza los marcadores:
-- `[TELÉFONO]` — número de WhatsApp / llamadas
+- `[TELÉFONO]` — número de WhatsApp / llamadas **propio de Eastern Food Trailers**. Nunca usar el teléfono de CookingBox en estas publicaciones.
 - `[UBICACIÓN]` — ciudad / lote donde se ven los trailers
 - `[PRECIO]`, `[ENGANCHE]`, `[PAGO]` — cifras del trailer publicado
 - `[MEDIDA]`, `[AÑO]`, `[EQUIPO]` — datos del trailer
