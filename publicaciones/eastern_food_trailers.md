@@ -242,3 +242,57 @@ Más unidades nuevas y seminuevas disponibles. Mensaje o WhatsApp: [TELÉFONO].
 | Jue | 6 · Trade-in |
 | Vie | 10 · FAQ |
 | Sáb | 8 · Oferta de la semana |
+
+---
+
+## 12. Seminuevo 8x12 en oferta (publicación lista)
+
+Teléfono: usar el número propio de Eastern Food Trailers, no el de CookingBox.
+
+**ES**
+🔥 OFERTA · FOOD TRAILER SEMINUEVO 8x12 · LISTO PARA TRABAJAR
+
+Precio normal: ~~$22,500~~
+💥 HOY SOLO: $16,800
+¡Te ahorras $5,700!
+
+Eastern Food Trailers tiene disponible este trailer de 12 pies, un solo eje de 6,000 lbs. Ideal para empezar tu negocio de tacos, elotes, snacks o café sin pagar precio de nuevo.
+
+✔️ Revisado por nuestro equipo: luces, llantas y frenos
+✔️ Paredes de acero inoxidable
+✔️ Equipo incluido: [EQUIPO]
+✔️ Instalación eléctrica y de gas lista
+✔️ Título limpio en mano
+
+💳 Financiamiento disponible con enganche aprobado
+
+El tamaño perfecto para moverlo con una camioneta y estacionarlo en cualquier lado. A este precio no va a durar.
+
+📍 [UBICACIÓN]
+📲 Mándanos mensaje o WhatsApp al [TELÉFONO] y apártalo hoy.
+
+#EasternFoodTrailers #FoodTrailer #TrailerDeComida #Seminuevo #Oferta #Emprende #RGV #Texas
+
+**EN**
+🔥 DEAL · PRE-OWNED 8x12 FOOD TRAILER · READY TO WORK
+
+Regular price: ~~$22,500~~
+💥 NOW ONLY: $16,800
+You save $5,700!
+
+Eastern Food Trailers has this 12 ft trailer available, single 6,000 lb axle. Perfect to launch your taco, snack or coffee business without paying new-trailer prices.
+
+✔️ Inspected by our team: lights, tires and brakes
+✔️ Stainless steel walls
+✔️ Equipment included: [EQUIPO]
+✔️ Electrical and propane lines ready
+✔️ Clean title in hand
+
+💳 Financing available with approved down payment
+
+Small enough to tow with a pickup and park anywhere. At this price it won't last.
+
+📍 [UBICACIÓN]
+📲 Message or WhatsApp us at [TELÉFONO] and reserve it today.
+
+#EasternFoodTrailers #FoodTrailer #PreOwned #Deal #SmallBusiness #RGV #Texas
