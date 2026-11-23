@@ -18,7 +18,7 @@ def logo(c_east, c_trail, c_chasis, c_tire, c_rim, c_tag, bg=None, square=None, 
     x0=pad; fs1=wid*0.195; fs2=wid*0.1
     y1=pad+fs1*0.76; y2=y1+fs2*1.55
     lw=wid*0.042; yl=y2+fs2*0.62
-    r=wid*0.058; yw=yl+lw+r*1.05
+    r=wid*0.058; yw=yl+lw+r*1.45
     tongue=wid*0.11
     W=wid+pad*2+tongue; H=yw+r*1.15+pad*0.7
     s=[]
