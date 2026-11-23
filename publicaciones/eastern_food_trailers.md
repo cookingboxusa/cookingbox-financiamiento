@@ -247,52 +247,60 @@ Más unidades nuevas y seminuevas disponibles. Mensaje o WhatsApp: [TELÉFONO].
 
 ## 12. Seminuevo 8x12 en oferta (publicación lista)
 
-Teléfono: usar el número propio de Eastern Food Trailers, no el de CookingBox.
+Teléfono de Eastern Food Trailers: (659) 220-0980. Ubicación: Kansas.
 
 **ES**
 🔥 OFERTA · FOOD TRAILER SEMINUEVO 8x12 · LISTO PARA TRABAJAR
 
-Precio normal: ~~$22,500~~
+Precio normal: $22,500
 💥 HOY SOLO: $16,800
 ¡Te ahorras $5,700!
 
-Eastern Food Trailers tiene disponible este trailer de 12 pies, un solo eje de 6,000 lbs. Ideal para empezar tu negocio de tacos, elotes, snacks o café sin pagar precio de nuevo.
+Eastern Food Trailers tiene disponible este trailer de 12 pies, un solo eje de 6,000 lbs. Ideal para empezar tu negocio de tacos, burgers, snacks o antojitos sin pagar precio de nuevo.
+
+🍳 EQUIPO INCLUIDO:
+✔️ Plancha
+✔️ Estufa
+✔️ Freidora
+✔️ Warmer (calentador de alimentos)
+✔️ Plomería y electricidad instaladas
 
 ✔️ Revisado por nuestro equipo: luces, llantas y frenos
-✔️ Paredes de acero inoxidable
-✔️ Equipo incluido: [EQUIPO]
-✔️ Instalación eléctrica y de gas lista
 ✔️ Título limpio en mano
 
 💳 Financiamiento disponible con enganche aprobado
 
-El tamaño perfecto para moverlo con una camioneta y estacionarlo en cualquier lado. A este precio no va a durar.
+Llega, conecta y empieza a vender. El tamaño perfecto para moverlo con una camioneta y estacionarlo en cualquier lado. A este precio no va a durar.
 
-📍 [UBICACIÓN]
-📲 Mándanos mensaje o WhatsApp al [TELÉFONO] y apártalo hoy.
+📍 Kansas
+📲 Mándanos mensaje o WhatsApp al (659) 220-0980 y apártalo hoy.
 
-#EasternFoodTrailers #FoodTrailer #TrailerDeComida #Seminuevo #Oferta #Emprende #RGV #Texas
+#EasternFoodTrailers #FoodTrailer #TrailerDeComida #Seminuevo #Oferta #Emprende #Kansas
 
 **EN**
 🔥 DEAL · PRE-OWNED 8x12 FOOD TRAILER · READY TO WORK
 
-Regular price: ~~$22,500~~
+Regular price: $22,500
 💥 NOW ONLY: $16,800
 You save $5,700!
 
-Eastern Food Trailers has this 12 ft trailer available, single 6,000 lb axle. Perfect to launch your taco, snack or coffee business without paying new-trailer prices.
+Eastern Food Trailers has this 12 ft trailer available, single 6,000 lb axle. Perfect to launch your taco, burger or snack business without paying new-trailer prices.
+
+🍳 EQUIPMENT INCLUDED:
+✔️ Flat top griddle
+✔️ Stove
+✔️ Deep fryer
+✔️ Food warmer
+✔️ Plumbing and electrical installed
 
 ✔️ Inspected by our team: lights, tires and brakes
-✔️ Stainless steel walls
-✔️ Equipment included: [EQUIPO]
-✔️ Electrical and propane lines ready
 ✔️ Clean title in hand
 
 💳 Financing available with approved down payment
 
-Small enough to tow with a pickup and park anywhere. At this price it won't last.
+Show up, plug in and start selling. Small enough to tow with a pickup and park anywhere. At this price it won't last.
 
-📍 [UBICACIÓN]
-📲 Message or WhatsApp us at [TELÉFONO] and reserve it today.
+📍 Kansas
+📲 Message or WhatsApp us at (659) 220-0980 and reserve it today.
 
-#EasternFoodTrailers #FoodTrailer #PreOwned #Deal #SmallBusiness #RGV #Texas
+#EasternFoodTrailers #FoodTrailer #PreOwned #Deal #SmallBusiness #Kansas
