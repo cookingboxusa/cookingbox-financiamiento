@@ -4,40 +4,50 @@
 <meta charset="UTF-8">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { width: 1080px; height: 1350px; font-family: "DejaVu Sans", Arial, Helvetica, sans-serif; background: #0f1b2d; color: #fff; overflow: hidden; position: relative; }
-  .hero { position: absolute; top: 0; left: 0; width: 1080px; height: 720px; background: url('fotos/8x12_exterior.jpg') center 58% / cover no-repeat; }
-  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,27,45,0.55) 0%, rgba(15,27,45,0) 35%, rgba(15,27,45,0) 60%, #0f1b2d 100%); }
-  .brand { position: absolute; top: 40px; left: 56px; display: flex; align-items: center; gap: 16px; z-index: 2; }
-  .brand .logo { width: 78px; height: 78px; border-radius: 18px; background: #ff7a00; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: 900; color: #0f1b2d; }
-  .brand h1 { font-size: 38px; font-weight: 900; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
-  .brand h1 span { display: block; font-size: 16px; font-weight: 700; letter-spacing: 5px; color: #ffb366; margin-top: 7px; }
-  .tag { position: absolute; top: 48px; right: 56px; z-index: 2; background: #ff7a00; color: #0f1b2d; font-weight: 900; font-size: 24px; padding: 12px 24px; border-radius: 999px; letter-spacing: 2px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
-  .title { position: absolute; top: 540px; left: 56px; right: 56px; z-index: 2; }
-  .title h2 { font-size: 86px; font-weight: 900; line-height: 0.95; letter-spacing: -2px; text-shadow: 0 3px 16px rgba(0,0,0,0.7); }
-  .title h2 small { display: block; font-size: 30px; font-weight: 700; color: #ffb366; letter-spacing: 0; margin-top: 12px; }
-  .row { position: absolute; top: 740px; left: 56px; right: 56px; display: flex; gap: 24px; height: 300px; }
-  .price { flex: 0 0 430px; background: #ff7a00; color: #0f1b2d; border-radius: 26px; padding: 26px 30px; display: flex; flex-direction: column; justify-content: center; }
-  .price .was { font-size: 28px; font-weight: 700; text-decoration: line-through; opacity: 0.75; }
-  .price .now { font-size: 104px; font-weight: 900; line-height: 1; letter-spacing: -4px; margin: 6px 0 10px; }
-  .price .save { font-size: 26px; font-weight: 900; background: #0f1b2d; color: #ffb366; display: inline-block; padding: 8px 16px; border-radius: 12px; align-self: flex-start; }
-  .equip { flex: 1; background: rgba(255,255,255,0.08); border-radius: 26px; padding: 20px 26px; overflow: hidden; }
-  .equip h3 { font-size: 18px; letter-spacing: 4px; color: #ffb366; margin-bottom: 6px; }
-  .equip li { list-style: none; font-size: 25px; font-weight: 700; line-height: 1.5; white-space: nowrap; }
-  .equip li::before { content: "✔ "; color: #ff7a00; }
-  .thumbs { position: absolute; top: 1064px; left: 56px; right: 56px; display: flex; gap: 16px; }
-  .thumbs div { flex: 1; height: 140px; border-radius: 18px; background-size: cover; background-position: center; border: 3px solid rgba(255,255,255,0.15); }
-  .foot { position: absolute; left: 56px; right: 56px; bottom: 40px; display: flex; justify-content: space-between; align-items: center; background: #fff; color: #0f1b2d; border-radius: 22px; padding: 18px 32px; }
-  .foot .phone { font-size: 50px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
-  .foot .phone small { display: block; font-size: 17px; font-weight: 700; letter-spacing: 3px; color: #ff7a00; margin-bottom: 6px; }
-  .foot .loc { text-align: right; font-size: 26px; font-weight: 700; }
-  .foot .loc small { display: block; font-size: 17px; font-weight: 600; color: #666; }
+  body { width: 1080px; height: 1350px; font-family: "DejaVu Sans", Arial, Helvetica, sans-serif; color: #F6F1E7; overflow: hidden; position: relative;
+    background: radial-gradient(ellipse at 50% 42%, #3a5260 0%, #22323b 45%, #141f26 100%); }
+  .sun { position: absolute; left: 50%; top: 70px; width: 760px; height: 760px; margin-left: -380px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,122,0,0.55) 0%, rgba(255,122,0,0.18) 45%, rgba(255,122,0,0) 70%); }
+  .floor { position: absolute; left: 50%; top: 560px; width: 900px; height: 90px; margin-left: -450px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 70%); }
+  .hero { position: absolute; left: 50%; top: 110px; width: 580px; margin-left: -320px; z-index: 2; filter: drop-shadow(0 30px 40px rgba(0,0,0,0.55)); }
+  .brand { position: absolute; top: 38px; left: 52px; z-index: 3; display: flex; align-items: center; gap: 14px; }
+  .brand svg { width: 86px; height: 86px; }
+  .brand h1 { font-size: 36px; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+  .brand h1 span { display: block; font-size: 14px; font-weight: 700; letter-spacing: 5px; color: #FF7A00; margin-top: 7px; }
+  .tag { position: absolute; top: 50px; right: 52px; z-index: 3; background: #FF7A00; color: #141f26; font-weight: 900; font-size: 23px; padding: 12px 22px; border-radius: 999px; letter-spacing: 2px; }
+  .title { position: absolute; top: 660px; left: 52px; right: 52px; z-index: 3; text-align: center; }
+  .title h2 { font-size: 80px; font-weight: 900; line-height: 0.95; letter-spacing: -2px; }
+  .title h2 small { display: block; font-size: 27px; font-weight: 700; color: #FFB366; letter-spacing: 0; margin-top: 12px; }
+  .row { position: absolute; top: 820px; left: 52px; right: 52px; display: flex; gap: 22px; height: 270px; z-index: 3; }
+  .price { flex: 0 0 420px; background: #FF7A00; color: #141f26; border-radius: 26px; padding: 24px 28px; display: flex; flex-direction: column; justify-content: center; }
+  .price .was { font-size: 26px; font-weight: 700; text-decoration: line-through; opacity: 0.75; }
+  .price .now { font-size: 100px; font-weight: 900; line-height: 1; letter-spacing: -4px; margin: 6px 0 10px; }
+  .price .save { font-size: 24px; font-weight: 900; background: #141f26; color: #FFB366; display: inline-block; padding: 8px 16px; border-radius: 12px; align-self: flex-start; }
+  .equip { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 26px; padding: 20px 26px; overflow: hidden; }
+  .equip h3 { font-size: 17px; letter-spacing: 4px; color: #FFB366; margin-bottom: 6px; }
+  .equip li { list-style: none; font-size: 24px; font-weight: 700; line-height: 1.45; white-space: nowrap; }
+  .equip li::before { content: "✔ "; color: #FF7A00; }
+  .thumbs { position: absolute; top: 1116px; left: 52px; width: 520px; display: flex; gap: 14px; z-index: 3; }
+  .thumbs div { flex: 1; height: 180px; border-radius: 18px; background-size: cover; background-position: center; border: 3px solid rgba(255,255,255,0.15); }
+  .foot { position: absolute; top: 1116px; right: 52px; width: 440px; height: 180px; background: #F6F1E7; color: #141f26; border-radius: 22px; padding: 20px 26px; white-space: nowrap; display: flex; flex-direction: column; justify-content: center; z-index: 3; }
+  .foot .phone { font-size: 42px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+  .foot .phone small { display: block; font-size: 15px; font-weight: 700; letter-spacing: 3px; color: #FF7A00; margin-bottom: 6px; }
+  .foot .loc { font-size: 19px; font-weight: 700; margin-top: 12px; color: #2B3D45; line-height: 1.4; }
 </style>
 </head>
 <body>
-<div class="hero"></div>
-<div class="brand"><div class="logo">E</div><h1>EASTERN<span>FOOD TRAILERS</span></h1></div>
+<div class="sun"></div>
+<div class="floor"></div>
+<img class="hero" src="fotos/8x12_exterior_cut.png">
+
+<div class="brand">
+  <svg viewBox="0 0 150 150"><rect width="150" height="150" rx="30" fill="#2B3D45"/><circle cx="75" cy="78" r="44" fill="#FF7A00"/><rect x="0" y="78" width="150" height="72" rx="0" fill="#2B3D45"/><rect x="22" y="70" width="106" height="50" rx="6" fill="#F6F1E7"/><rect x="34" y="80" width="38" height="20" rx="3" fill="#2B3D45"/><rect x="32" y="106" width="48" height="4" fill="#FF7A00"/><circle cx="100" cy="122" r="11" fill="#2B3D45" stroke="#F6F1E7" stroke-width="4"/><rect x="128" y="110" width="16" height="5" fill="#F6F1E7"/></svg>
+  <h1>EASTERN<span>FOOD TRAILERS</span></h1>
+</div>
 <div class="tag">🔥 OFERTA · SEMINUEVO</div>
-<div class="title"><h2>FOOD TRAILER 8x12<small>Listo para trabajar · 1 eje 6,000 lbs · Kansas</small></h2></div>
+
+<div class="title"><h2>FOOD TRAILER 8x12<small>Listo para trabajar · 1 eje 6,000 lbs</small></h2></div>
 
 <div class="row">
   <div class="price">
@@ -61,12 +71,10 @@
 <div class="thumbs">
   <div style="background-image:url('fotos/8x12_cocina.jpg')"></div>
   <div style="background-image:url('fotos/8x12_tarja.jpg')"></div>
-  <div style="background-image:url('fotos/8x12_trasera.jpg')"></div>
 </div>
-
 <div class="foot">
   <div class="phone"><small>LLAMA O WHATSAPP</small>(659) 220-0980</div>
-  <div class="loc">📍 Kansas<small>Financiamiento disponible</small></div>
+  <div class="loc">📍 Kansas<br>💳 Financiamiento disponible</div>
 </div>
 </body>
 </html>
