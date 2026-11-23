@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1080px; height: 1350px; font-family: "DejaVu Sans", Arial, Helvetica, sans-serif; background: #0f1b2d; color: #fff; overflow: hidden; position: relative; }
+  .bg { position: absolute; inset: 0; background:
+      radial-gradient(circle at 85% 10%, rgba(255,140,0,0.35), transparent 45%),
+      radial-gradient(circle at 10% 95%, rgba(0,120,255,0.3), transparent 45%),
+      linear-gradient(160deg, #13223a 0%, #0b1424 100%); }
+  .stripe { position: absolute; left: -200px; right: -200px; height: 70px; background: #ff7a00; transform: rotate(-6deg); opacity: 0.95; }
+  .stripe.top { top: 150px; }
+  .wrap { position: relative; padding: 48px 60px; height: 100%; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand .logo { width: 86px; height: 86px; border-radius: 20px; background: #ff7a00; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; color: #0f1b2d; letter-spacing: -2px; }
+  .brand h1 { font-size: 44px; font-weight: 900; letter-spacing: 1px; line-height: 1; }
+  .brand h1 span { display: block; font-size: 18px; font-weight: 600; letter-spacing: 5px; color: #ffb366; margin-top: 8px; }
+  .tag { margin-top: 40px; display: inline-block; align-self: flex-start; background: #fff; color: #0f1b2d; font-weight: 900; font-size: 26px; padding: 12px 26px; border-radius: 999px; letter-spacing: 2px; }
+  h2 { margin-top: 24px; font-size: 92px; font-weight: 900; line-height: 0.95; letter-spacing: -2px; }
+  h2 small { display: block; font-size: 40px; font-weight: 700; color: #ffb366; letter-spacing: 0; margin-top: 10px; }
+  .photo { margin-top: 34px; height: 380px; border-radius: 28px; border: 4px dashed rgba(255,255,255,0.35); background: rgba(255,255,255,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,0.55); font-size: 28px; font-weight: 700; gap: 10px; }
+  .photo .icon { font-size: 110px; line-height: 1; }
+  .photo .hint { font-size: 20px; font-weight: 400; }
+  .row { margin-top: 34px; display: flex; gap: 30px; align-items: stretch; }
+  .price { flex: 0 0 440px; background: #ff7a00; color: #0f1b2d; border-radius: 28px; padding: 28px 32px; display: flex; flex-direction: column; justify-content: center; }
+  .price .was { font-size: 30px; font-weight: 700; text-decoration: line-through; opacity: 0.75; }
+  .price .now { font-size: 108px; font-weight: 900; line-height: 1; letter-spacing: -4px; margin: 6px 0; }
+  .price .save { font-size: 28px; font-weight: 900; background: #0f1b2d; color: #ffb366; display: inline-block; padding: 8px 18px; border-radius: 12px; align-self: flex-start; }
+  .equip { flex: 1; background: rgba(255,255,255,0.08); border-radius: 28px; padding: 26px 32px; }
+  .equip h3 { font-size: 22px; letter-spacing: 4px; color: #ffb366; margin-bottom: 14px; }
+  .equip li { list-style: none; font-size: 32px; font-weight: 700; line-height: 1.45; padding-left: 48px; text-indent: -48px; }
+  .equip li::before { content: "✔ "; color: #ff7a00; }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; background: #fff; color: #0f1b2d; border-radius: 24px; padding: 26px 36px; }
+  .foot .phone { font-size: 54px; font-weight: 900; letter-spacing: -1px; }
+  .foot .phone small { display: block; font-size: 20px; font-weight: 700; letter-spacing: 3px; color: #ff7a00; }
+  .foot .loc { text-align: right; font-size: 26px; font-weight: 700; }
+  .foot .loc small { display: block; font-size: 18px; font-weight: 600; color: #666; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="stripe top"></div>
+<div class="wrap">
+  <div class="brand">
+    <div class="logo">E</div>
+    <h1>EASTERN<span>FOOD TRAILERS</span></h1>
+  </div>
+
+  <div class="tag">🔥 OFERTA · SEMINUEVO</div>
+  <h2>FOOD TRAILER 8x12<small>Listo para trabajar · 1 eje 6,000 lbs</small></h2>
+
+  <div class="photo">
+    <div class="icon">🚚</div>
+    <div>FOTO DEL TRAILER AQUÍ</div>
+    <div class="hint">Reemplazar por la foto real de la unidad</div>
+  </div>
+
+  <div class="row">
+    <div class="price">
+      <div class="was">Precio normal $22,500</div>
+      <div class="now">$16,800</div>
+      <div class="save">AHORRAS $5,700</div>
+    </div>
+    <div class="equip">
+      <h3>EQUIPO INCLUIDO</h3>
+      <ul>
+        <li>Plancha</li>
+        <li>Estufa</li>
+        <li>Freidora</li>
+        <li>Warmer</li>
+        <li>Plomería y electricidad</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="phone"><small>LLAMA O WHATSAPP</small>(659) 220-0980</div>
+    <div class="loc">📍 Kansas<small>Financiamiento disponible</small></div>
+  </div>
+</div>
+</body>
+</html>
